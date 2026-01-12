@@ -52,26 +52,26 @@ const navConfig = {
     {
       id: "buy",
       label: "Buy",
-      href: "/buy",
+      href: "/search",
       type: "dropdown",
       items: [
-        { label: "All homes", href: "/buy" },
-        { label: "New developments", href: "/buy/developments" },
-        { label: "On show", href: "/buy/on-show" },
-        { label: "Bank assisted & repos", href: "/buy/bank-assisted" },
-        { label: "FSBO (verified owners)", href: "/buy/owner-listed" },
+        { label: "All homes", href: "/search" },
+        { label: "New developments", href: "/search?type=development" },
+        { label: "On show", href: "/search?filter=on-show" },
+        { label: "Bank assisted & repos", href: "/search?filter=bank-assisted" },
+        { label: "FSBO (verified owners)", href: "/search?filter=owner-listed" },
       ],
     },
     {
       id: "rent",
       label: "Rent",
-      href: "/rent",
+      href: "/search?intent=rent",
       type: "dropdown",
       items: [
-        { label: "All rentals", href: "/rent" },
-        { label: "Long‑term", href: "/rent/long-term" },
-        { label: "Sectional title", href: "/rent/sectional-title" },
-        { label: "Pet‑friendly", href: "/rent/pet-friendly" },
+        { label: "All rentals", href: "/search?intent=rent" },
+        { label: "Long‑term", href: "/search?intent=rent&type=long-term" },
+        { label: "Sectional title", href: "/search?intent=rent&type=sectional-title" },
+        { label: "Pet‑friendly", href: "/search?intent=rent&filter=pet-friendly" },
       ],
     },
     {
@@ -181,7 +181,7 @@ export function Header() {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <header id="seekrza-header" className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <div className="flex items-center gap-6">
