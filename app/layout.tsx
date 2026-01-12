@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/lib/auth-context"
+import { MobileBottomNav } from "@/components/mobile-bottom-nav"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -47,7 +49,12 @@ export default function RootLayout({
           disableTransitionOnChange={false}
           storageKey="seekrza-theme"
         >
-          {children}
+          <AuthProvider>
+            <div className="flex min-h-screen flex-col">
+              {children}
+            </div>
+            <MobileBottomNav />
+          </AuthProvider>
         </ThemeProvider>
         <Analytics />
       </body>

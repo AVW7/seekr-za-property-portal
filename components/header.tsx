@@ -1,126 +1,457 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Building2, Heart, User, Menu } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { useState } from "react"
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import {
+  Menu,
+  Heart,
+  Bell,
+  Settings,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/lib/auth-context";
+
+// --- Configuration Data ---
+const navConfig = {
+  primaryNav: [
+    {
+      id: "buy",
+      label: "Buy",
+      href: "/buy",
+      type: "dropdown",
+      items: [
+        { label: "All homes", href: "/buy" },
+        { label: "New developments", href: "/buy/developments" },
+        { label: "On show", href: "/buy/on-show" },
+        { label: "Bank assisted & repos", href: "/buy/bank-assisted" },
+        { label: "FSBO (verified owners)", href: "/buy/owner-listed" },
+      ],
+    },
+    {
+      id: "rent",
+      label: "Rent",
+      href: "/rent",
+      type: "dropdown",
+      items: [
+        { label: "All rentals", href: "/rent" },
+        { label: "Long‑term", href: "/rent/long-term" },
+        { label: "Sectional title", href: "/rent/sectional-title" },
+        { label: "Pet‑friendly", href: "/rent/pet-friendly" },
+      ],
+    },
+    {
+      id: "suburbs",
+      label: "Suburbs",
+      href: "/suburbs",
+      type: "mega",
+      columns: [
+        {
+          title: "Western Cape",
+          links: [
+            { label: "Cape Town", href: "/suburbs/western-cape/cape-town" },
+            {
+              label: "Somerset West",
+              href: "/suburbs/western-cape/somerset-west",
+            },
+            {
+              label: "Stellenbosch",
+              href: "/suburbs/western-cape/stellenbosch",
+            },
+          ],
+        },
+        {
+          title: "Gauteng",
+          links: [
+            { label: "Sandton", href: "/suburbs/gauteng/sandton" },
+            { label: "Fourways", href: "/suburbs/gauteng/fourways" },
+            { label: "Centurion", href: "/suburbs/gauteng/centurion" },
+          ],
+        },
+        {
+          title: "KwaZulu‑Natal",
+          links: [
+            { label: "Durban North", href: "/suburbs/kzn/durban-north" },
+            { label: "Umhlanga", href: "/suburbs/kzn/umhlanga" },
+            { label: "Ballito", href: "/suburbs/kzn/ballito" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "buyability",
+      label: "BuyAbility",
+      href: "/buyability",
+      type: "inline",
+      badge: { text: "ZA", variant: "brand" },
+      tooltip: "SA-specific affordability incl. transfer duty, levies & rates",
+    },
+    {
+      id: "market",
+      label: "Market",
+      href: "/market",
+      type: "dropdown",
+      items: [
+        { label: "Sold prices", href: "/market/sold-prices" },
+        { label: "Price trends", href: "/market/trends" },
+        { label: "Comparables", href: "/market/comps" },
+      ],
+    },
+    {
+      id: "agents",
+      label: "For Agents",
+      href: "/agents",
+      type: "dropdown",
+      items: [
+        { label: "List with SeekrZA", href: "/agents/onboard" },
+        { label: "Agent login", href: "/agents/login" },
+        { label: "Feed specs", href: "/agents/feeds" },
+        { label: "Pricing", href: "/agents/pricing" },
+      ],
+    },
+  ],
+  mobile: {
+    sheetMenu: {
+      sections: [
+        {
+          title: "Browse",
+          links: [
+            { label: "Buy", href: "/buy" },
+            { label: "Rent", href: "/rent" },
+            { label: "Suburbs", href: "/suburbs" },
+            { label: "Market", href: "/market" },
+          ],
+        },
+        {
+          title: "Tools",
+          links: [
+            { label: "BuyAbility", href: "/buyability" },
+            { label: "Alerts", href: "/alerts" },
+            { label: "Saved", href: "/saved" },
+          ],
+        },
+        {
+          title: "Agents",
+          links: [
+            { label: "List with SeekrZA", href: "/agents/onboard" },
+            { label: "Agent login", href: "/agents/login" },
+          ],
+        },
+      ],
+    },
+  },
+};
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4 md:gap-6">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span className="text-lg sm:text-xl font-bold">SeekrZA</span>
+            <Image
+              src="https://cdn.seekrza.com/brand/seekrza-logo.svg"
+              alt="SeekrZA"
+              width={120}
+              height={32}
+              className="h-8 w-auto"
+              priority
+              // Simple fallback if external image fails or loads slowly
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                const parent = e.currentTarget.parentElement;
+                if (parent) {
+                  parent.innerHTML += '<span class="text-xl font-bold">SeekrZA</span>';
+                }
+              }}
+            />
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/properties"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Buy
-            </Link>
-            <Link
-              href="/properties?type=rent"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Rent
-            </Link>
-            <Link
-              href="/suburbs"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Suburbs
-            </Link>
-            <Link
-              href="/calculator"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Affordability
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Button variant="ghost" size="icon" className="hidden sm:flex" asChild>
-            <Link href="/saved">
-              <Heart className="h-5 w-5" />
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden sm:flex" asChild>
-            <Link href="/login">
-              <User className="h-5 w-5" />
-            </Link>
-          </Button>
-          <Button className="hidden sm:flex" asChild>
-            <Link href="/list-property">List Property</Link>
-          </Button>
 
+          {/* Desktop Navigation */}
+          <TooltipProvider>
+            <NavigationMenu className="hidden lg:flex">
+              <NavigationMenuList>
+                {navConfig.primaryNav.map((item) => {
+                  if (item.type === "inline") {
+                    return (
+                      <NavigationMenuItem key={item.id}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                              <Link href={item.href}>
+                                {item.label}
+                                {item.badge && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="ml-2 h-5 rounded px-1.5 text-[0.6rem] font-bold text-primary"
+                                  >
+                                    {item.badge.text}
+                                  </Badge>
+                                )}
+                              </Link>
+                            </NavigationMenuLink>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{item.tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </NavigationMenuItem>
+                    );
+                  }
+
+                  if (item.type === "dropdown" && item.items) {
+                    return (
+                      <NavigationMenuItem key={item.id}>
+                        <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid w-50 gap-2 p-4">
+                            {item.items.map((subItem) => (
+                              <li key={subItem.href}>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href={subItem.href}
+                                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                  >
+                                    <div className="text-sm font-medium leading-none">
+                                      {subItem.label}
+                                    </div>
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    );
+                  }
+
+                  if (item.type === "mega" && item.columns) {
+                    return (
+                      <NavigationMenuItem key={item.id}>
+                        <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <div className="grid w-150 grid-cols-3 gap-5 p-6">
+                            {item.columns.map((col) => (
+                              <div key={col.title} className="space-y-4">
+                                <h4 className="font-medium leading-none">
+                                  {col.title}
+                                </h4>
+                                <ul className="space-y-2">
+                                  {col.links.map((link) => (
+                                    <li key={link.href}>
+                                      <NavigationMenuLink asChild>
+                                        <Link
+                                          href={link.href}
+                                          className="text-sm text-muted-foreground hover:text-foreground"
+                                        >
+                                          {link.label}
+                                        </Link>
+                                      </NavigationMenuLink>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    );
+                  }
+
+                  return null;
+                })}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </TooltipProvider>
+        </div>
+
+        {/* Right Interactions */}
+        <div className="flex items-center gap-2">
+          {/* Utility Nav - Desktop */}
+          <div className="hidden sm:flex items-center gap-1">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/saved" aria-label="Saved properties">
+                <Heart className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/alerts" aria-label="Alerts">
+                <Bell className="h-5 w-5" />
+              </Link>
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="hidden lg:flex gap-1 px-2">
+                  EN <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="?lang=en-ZA">English (ZA)</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="?lang=af-ZA">Afrikaans</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <ThemeToggle />
+          </div>
+
+          <div className="h-6 w-px bg-border mx-2 hidden sm:block" />
+
+          {/* Auth State */}
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={user.user_metadata?.avatar_url}
+                      alt={user.email || "User"}
+                    />
+                    <AvatarFallback>
+                      {user.email?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <p className="font-medium">{user.email}</p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/account">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/saved">Saved homes</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/account/buyability">My BuyAbility</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/account/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="hidden sm:flex items-center gap-2">
+              <Button variant="ghost" asChild>
+                <Link href="/auth/login">Sign in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/auth/sign-up">Create account</Link>
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile Menu Trigger */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden">
                 <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <nav className="flex flex-col gap-4 mt-8">
-                <Link
-                  href="/properties"
-                  className="text-lg font-medium hover:text-primary transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Buy Properties
-                </Link>
-                <Link
-                  href="/properties?type=rent"
-                  className="text-lg font-medium hover:text-primary transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Rent Properties
-                </Link>
-                <Link
-                  href="/suburbs"
-                  className="text-lg font-medium hover:text-primary transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Browse Suburbs
-                </Link>
-                <Link
-                  href="/calculator"
-                  className="text-lg font-medium hover:text-primary transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Affordability Calculator
-                </Link>
-                <div className="border-t pt-4 mt-4 space-y-3">
-                  <Link href="/saved" onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" className="w-full justify-start bg-transparent" size="lg">
-                      <Heart className="mr-2 h-5 w-5" />
-                      Saved Properties
+            <SheetContent side="right" className="w-75 sm:w-100">
+              <SheetHeader>
+                <SheetTitle className="text-left">Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-6 py-6">
+                {!user && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" asChild onClick={() => setIsOpen(false)}>
+                      <Link href="/auth/login">Sign in</Link>
                     </Button>
-                  </Link>
-                  <Link href="/login" onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" className="w-full justify-start bg-transparent" size="lg">
-                      <User className="mr-2 h-5 w-5" />
-                      Agent Login
+                    <Button asChild onClick={() => setIsOpen(false)}>
+                      <Link href="/auth/sign-up">Sign up</Link>
                     </Button>
-                  </Link>
-                  <Link href="/list-property" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full" size="lg">
-                      List Your Property
-                    </Button>
-                  </Link>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1">
+                  {navConfig.mobile.sheetMenu.sections.map((section) => (
+                    <div key={section.title} className="py-2">
+                      <h4 className="mb-2 px-2 text-sm font-medium text-muted-foreground">
+                        {section.title}
+                      </h4>
+                      {section.links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className="block rounded-md px-2 py-2 text-base font-medium hover:bg-accent hover:text-accent-foreground"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
                 </div>
-              </nav>
+
+                <div className="mt-auto border-t pt-4">
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-sm font-medium">Appearance</span>
+                    <ThemeToggle />
+                  </div>
+                </div>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </header>
-  )
+  );
 }
