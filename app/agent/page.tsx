@@ -1,46 +1,28 @@
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { serverClient } from "@/utils/server-trpc"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Home, MessageSquare, Eye, Plus } from "lucide-react"
 import Link from "next/link"
 
 export default async function AgentDashboardPage() {
-  const supabase = await createClient()
+  const api = await serverClient()
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-  if (error || !user) {
+  let dashboardData
+  try {
+    dashboardData = await api.agent.getDashboardStats()
+  } catch (error) {
     redirect("/auth/login")
   }
 
-  // Fetch agent's properties
-  const { data: properties, error: propertiesError } = await supabase
-    .from("properties")
-    .select("*")
-    .eq("agent_id", user.id)
-
-  // Fetch agent's leads
-  const { data: leads, error: leadsError } = await supabase
-    .from("leads")
-    .select("*")
-    .eq("agent_id", user.id)
-    .order("created_at", { ascending: false })
-
-  const totalViews = properties?.reduce((sum, prop) => sum + (prop.views || 0), 0) || 0
+  const { user, properties, leads, stats } = dashboardData
+  const { totalViews, activeListingsCount, newLeadsCount } = stats
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 bg-muted/50">
-        <div className="container py-8">
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Agent Dashboard</h1>
+    <>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Agent Dashboard</h1>
               <p className="text-muted-foreground">Welcome back, {user.email}</p>
             </div>
             <Button size="lg" asChild>
@@ -59,7 +41,7 @@ export default async function AgentDashboardPage() {
                 <Home className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{properties?.filter((p) => p.status === "active").length || 0}</div>
+                <div className="text-2xl font-bold">{activeListingsCount}</div>
                 <p className="text-xs text-muted-foreground">{properties?.length || 0} total listings</p>
               </CardContent>
             </Card>
@@ -72,7 +54,7 @@ export default async function AgentDashboardPage() {
               <CardContent>
                 <div className="text-2xl font-bold">{leads?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">
-                  {leads?.filter((l) => l.status === "new").length || 0} new inquiries
+                  {newLeadsCount} new inquiries
                 </p>
               </CardContent>
             </Card>
@@ -99,16 +81,21 @@ export default async function AgentDashboardPage() {
                 {leads && leads.length > 0 ? (
                   <div className="space-y-4">
                     {leads.slice(0, 5).map((lead) => (
-                      <div key={lead.id} className="flex justify-between items-start border-b pb-3 last:border-0">
+                      <div key={lead.id} className="flex justify-between items-start border-b pb-3 last:border-0 last:pb-0">
                         <div>
                           <p className="font-medium">{lead.name}</p>
-                          <p className="text-sm text-muted-foreground">{lead.email}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-sm text-muted-foreground">{lead.email || lead.phone}</p>
+                          {lead.properties && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Re: {(lead.properties as any).title}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             {new Date(lead.created_at).toLocaleDateString()}
                           </p>
                         </div>
-                        <Button size="sm" variant="outline">
-                          Contact
+                        <Button size="sm" variant="outline" asChild>
+                           <Link href={`/agent/leads/${lead.id}`}>Contact</Link>
                         </Button>
                       </div>
                     ))}
@@ -129,16 +116,20 @@ export default async function AgentDashboardPage() {
                 {properties && properties.length > 0 ? (
                   <div className="space-y-4">
                     {properties.slice(0, 5).map((property) => (
-                      <div key={property.id} className="flex justify-between items-start border-b pb-3 last:border-0">
+                      <div key={property.id} className="flex justify-between items-start border-b pb-3 last:border-0 last:pb-0">
                         <div>
                           <p className="font-medium line-clamp-1">{property.title}</p>
                           <p className="text-sm text-muted-foreground">
                             {property.suburb}, {property.city}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">{property.views || 0} views</p>
+                          <div className="flex gap-2 text-xs text-muted-foreground mt-1">
+                            <span>{property.views_count || 0} views</span>
+                            <span>•</span>
+                            <span>{property.enquiries_count || 0} enquiries</span>
+                          </div>
                         </div>
                         <Button size="sm" variant="outline" asChild>
-                          <Link href={`/properties/${property.id}`}>View</Link>
+                          <Link href={`/agent/listings/${property.id}/edit`}>Edit</Link>
                         </Button>
                       </div>
                     ))}
@@ -154,9 +145,6 @@ export default async function AgentDashboardPage() {
               </CardContent>
             </Card>
           </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
+    </>
   )
 }

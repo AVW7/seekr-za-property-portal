@@ -1,64 +1,181 @@
+// ============================================================================
+// CORE LISTING & AGENT INTERFACES (SA Rental/Sales Portal Focus)
+// ============================================================================
+
 export interface Property {
   id: string
-  agent_id: string
+  
+  // Portal integration
+  portal_listing_id?: string
+  portal_name?: string
+  
+  // Core classification
+  listing_type: "for_sale" | "to_rent" | "sold" | "leased"
+  property_type: "house" | "apartment_flat" | "townhouse" | "commercial" | "land" | "other"
+  status: "active" | "inactive" | "draft" | "archived"
+  
+  // Commercial basics
   title: string
   description: string
   price: number
-  property_type: string
-  listing_type: string
-  bedrooms: number
-  bathrooms: number
-  parking_spaces: number
-  floor_size: number
-  erf_size: number
-  monthly_levy: number
-  monthly_rates: number
-  sectional_title: boolean
-  freehold: boolean
-  has_solar: boolean
-  has_inverter: boolean
-  has_fiber: boolean
-  pet_friendly: boolean
-  in_estate: boolean
-  estate_name: string
-  address: string
+  price_currency: "ZAR"
+  price_period?: "total" | "per_month" | "per_week" | "per_day"
+  available_from?: string
+  
+  // Location (SA-specific)
+  street_address?: string
+  complex_or_building_name?: string
   suburb: string
   city: string
   province: string
-  postal_code: string
-  latitude: number
-  longitude: number
-  images: string[]
-  verified: boolean
-  verification_date: string
-  views: number
-  status: string
+  country: "South Africa"
+  postal_code?: string
+  latitude?: number
+  longitude?: number
+  
+  // Physical details
+  bedrooms?: number
+  bathrooms?: number
+  garages?: number
+  parking_bays?: number
+  floor_size_sqm?: number
+  land_size_sqm?: number
+  zoning?: string
+  furnished?: boolean
+  
+  // Features / tags
+  features: PropertyFeatures
+  
+  // Agent & agency references
+  agent_id: string
+  agency_id?: string
+  
+  // Media
+  cover_image_url?: string
+  image_urls: string[]
+  video_urls?: string[]
+  
+  // Market / engagement stats
+  list_date?: string
+  last_updated?: string
+  views_count?: number
+  favourites_count?: number
+  enquiries_count?: number
+  
+  // Area / median stats
+  area_stats?: AreaStats
+  
+  // Portal links
+  portal_urls?: PortalUrls
+  
+  // Tenant screening / SA specific
+  tenant_screening?: TenantScreening
+  
   created_at: string
   updated_at: string
 }
 
+export interface PropertyFeatures {
+  sea_view?: boolean
+  balcony?: boolean
+  air_conditioning?: boolean
+  jacuzzi_bath?: boolean
+  security_24h?: boolean
+  pets_allowed?: boolean
+  maid_included_in_rent?: boolean
+  dstv_included_in_rent?: boolean
+  in_estate?: boolean
+  estate_name?: string
+  has_solar?: boolean
+  has_inverter?: boolean
+  has_fibre?: boolean
+  pool?: boolean
+  garden?: boolean
+}
+
+export interface AreaStats {
+  suburb: string
+  bedrooms?: number
+  property_type?: string
+  median_monthly_rent?: number
+  median_sale_price?: number
+}
+
+export interface PortalUrls {
+  listing_url?: string
+  agent_profile_url?: string
+  agency_profile_url?: string
+  report_listing_url?: string
+}
+
+export interface TenantScreening {
+  supports_property24_tenantplus?: boolean
+  screening_provider?: "Property24TenantPlus" | "Preferental" | "TPN" | "Other"
+}
+
 export interface Agent {
   id: string
-  company_name: string
-  phone: string
-  whatsapp_number: string
-  bio: string
-  profile_image_url: string
+  full_name: string
+  email?: string
+  phone?: string
+  whatsapp_number?: string
+  profile_image_url?: string
+  bio?: string
+  agency_id?: string
+  
+  // Useful for search & display
+  focus_areas?: string[]
+  focus_property_types?: string[]
+  handles_rentals?: boolean
+  handles_sales?: boolean
+  
+  // Compliance (SA)
+  eaab_ppra_ffc_number?: string
   verified: boolean
+  
   created_at: string
+  updated_at: string
+}
+
+export interface Agency {
+  id: string
+  name: string
+  brand_name?: string
+  office_name?: string
+  email?: string
+  phone?: string
+  website_url?: string
+  portal_profile_url?: string
+  address?: AgencyAddress
+  
+  // BEE/compliance
+  bbee_level?: string
+  
+  created_at: string
+  updated_at: string
+}
+
+export interface AgencyAddress {
+  line1?: string
+  suburb?: string
+  city?: string
+  province?: string
+  postal_code?: string
+  country?: string
 }
 
 export interface Lead {
   id: string
   property_id: string
   agent_id: string
+  channel: "email" | "phone" | "whatsapp" | "portal_form"
   name: string
-  email: string
-  phone: string
+  email?: string
+  phone?: string
   message: string
-  lead_type: string
-  status: string
+  status: "new" | "contacted" | "in_progress" | "closed" | "lost"
   created_at: string
+  updated_at: string
 }
 
 export interface SavedProperty {
@@ -82,30 +199,42 @@ export interface SavedSearch {
 export interface SearchParams {
   // Basic filters
   location?: string
+  suburb?: string
+  city?: string
+  province?: string
   priceMin?: number
   priceMax?: number
-  propertyType?: string
-  listingType?: string
+  propertyType?: "house" | "apartment_flat" | "townhouse" | "commercial" | "land" | "other"
+  listingType?: "for_sale" | "to_rent" | "sold" | "leased"
   bedrooms?: number
   bathrooms?: number
   
-  // Intermediate filters
+  // Property features
   hasPool?: boolean
   hasGarden?: boolean
   petFriendly?: boolean
   inEstate?: boolean
-  propertyAge?: string
+  furnished?: boolean
+  seaView?: boolean
+  balcony?: boolean
+  airConditioning?: boolean
+  security24h?: boolean
   
-  // Advanced filters
+  // SA-specific features
   hasSolar?: boolean
   hasInverter?: boolean
-  hasFiber?: boolean
-  sectionalTitle?: boolean
-  freehold?: boolean
+  hasFibre?: boolean
+  dstvIncluded?: boolean
+  
+  // Size filters
   floorSizeMin?: number
   floorSizeMax?: number
-  erfSizeMin?: number
-  erfSizeMax?: number
+  landSizeMin?: number
+  landSizeMax?: number
+  
+  // Parking
+  garages?: number
+  parkingBays?: number
 }
 
 export interface UserProfile {
