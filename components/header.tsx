@@ -123,9 +123,10 @@ const navConfig = {
     {
       id: "market",
       label: "Market",
-      href: "/market",
+      href: "/insights",
       type: "dropdown",
       items: [
+        { label: "Market Insights", href: "/insights" },
         { label: "Sold prices", href: "/market/sold-prices" },
         { label: "Price trends", href: "/market/trends" },
         { label: "Comparables", href: "/market/comps" },
@@ -153,7 +154,7 @@ const navConfig = {
             { label: "Buy", href: "/buy" },
             { label: "Rent", href: "/rent" },
             { label: "Suburbs", href: "/suburbs" },
-            { label: "Market", href: "/market" },
+            { label: "Market Insights", href: "/insights" },
           ],
         },
         {

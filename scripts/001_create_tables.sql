@@ -174,6 +174,40 @@ CREATE POLICY "Users can delete their own saved properties"
   ON public.saved_properties FOR DELETE
   USING (auth.uid() = user_id);
 
+-- Create neighborhoods table for market insights
+CREATE TABLE IF NOT EXISTS public.neighborhoods (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  city TEXT NOT NULL,
+  province TEXT NOT NULL,
+  description TEXT,
+  average_price TEXT, -- e.g., "R8.5M"
+  price_change TEXT, -- e.g., "+8.2%"
+  highlights TEXT[], -- e.g., ["Beach", "Luxury", "Views"]
+  walk_score INTEGER,
+  crime_rate TEXT, -- e.g., "Low", "Medium", "High"
+  schools INTEGER,
+  restaurants INTEGER,
+  population INTEGER,
+  median_age INTEGER,
+  price_history JSONB DEFAULT '[]'::jsonb, -- [{year: 2024, price: "R8.5M"}]
+  amenities JSONB DEFAULT '[]'::jsonb, -- [{name: "", distance: "", type: ""}]
+  demographics JSONB DEFAULT '{}'::jsonb, -- {families: 35, young_professionals: 45}
+  transport_links JSONB DEFAULT '[]'::jsonb, -- [{name: "", type: "", distance: ""}]
+  local_insights JSONB DEFAULT '[]'::jsonb, -- [{title: "", content: "", rating: 5}]
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(name, city)
+);
+
+-- Enable RLS for neighborhoods
+ALTER TABLE public.neighborhoods ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can view neighborhoods
+CREATE POLICY "Anyone can view neighborhoods"
+  ON public.neighborhoods FOR SELECT
+  USING (true);
+
 -- Create indexes for performance
 CREATE INDEX idx_properties_suburb ON public.properties(suburb);
 CREATE INDEX idx_properties_city ON public.properties(city);
@@ -183,3 +217,5 @@ CREATE INDEX idx_properties_agent_id ON public.properties(agent_id);
 CREATE INDEX idx_properties_location ON public.properties(latitude, longitude);
 CREATE INDEX idx_leads_agent_id ON public.leads(agent_id);
 CREATE INDEX idx_leads_property_id ON public.leads(property_id);
+CREATE INDEX idx_neighborhoods_city ON public.neighborhoods(city);
+CREATE INDEX idx_neighborhoods_name ON public.neighborhoods(name);

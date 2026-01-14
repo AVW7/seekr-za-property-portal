@@ -60,8 +60,11 @@ export default function AccountDashboard() {
       if (savedPropsError) {
         console.error('Error loading saved properties:', savedPropsError)
         // If table doesn't exist, show empty state instead of crashing
-        if (savedPropsError.code === 'PGRST116' || savedPropsError.message?.includes('relation') || savedPropsError.message?.includes('does not exist')) {
-          console.warn('saved_properties table not found - database setup needed')
+        if (savedPropsError.code === 'PGRST116' || 
+            savedPropsError.message?.includes('relation') || 
+            savedPropsError.message?.includes('does not exist') ||
+            Object.keys(savedPropsError).length === 0) { // Handle empty error objects
+          console.warn('saved_properties table not found or empty error - database setup needed')
           setSavedPropertiesCount(0)
           setRecentProperties([])
         } else {
@@ -78,13 +81,16 @@ export default function AccountDashboard() {
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)
-        .order('updated_at', { ascending: false })
+        .order('created_at', { ascending: false })
 
       if (savedSearchesError) {
         console.error('Error loading saved searches:', savedSearchesError)
         // If table doesn't exist, show empty state instead of crashing
-        if (savedSearchesError.code === 'PGRST116' || savedSearchesError.message?.includes('relation') || savedSearchesError.message?.includes('does not exist')) {
-          console.warn('saved_searches table not found - database setup needed')
+        if (savedSearchesError.code === 'PGRST116' || 
+            savedSearchesError.message?.includes('relation') || 
+            savedSearchesError.message?.includes('does not exist') ||
+            Object.keys(savedSearchesError).length === 0) { // Handle empty error objects
+          console.warn('saved_searches table not found or empty error - database setup needed')
           setSavedSearchesCount(0)
           setRecentSearches([])
         } else {

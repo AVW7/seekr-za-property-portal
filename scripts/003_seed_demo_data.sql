@@ -117,6 +117,258 @@ INSERT INTO public.properties (
  '["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800", "https://images.unsplash.com/photo-1600566753151-384129cf4e3e?w=800"]'::jsonb,
  true, 'active');
 
+-- Seed neighborhoods data for market insights
+INSERT INTO public.neighborhoods (
+  id, name, city, province, description, average_price, price_change,
+  highlights, walk_score, crime_rate, schools, restaurants, population, median_age,
+  price_history, amenities, demographics, transport_links, local_insights
+) VALUES
+-- Cape Town Neighborhoods
+('11111111-1111-1111-1111-111111111111',
+ 'Camps Bay',
+ 'Cape Town',
+ 'Western Cape',
+ 'Luxury beachfront suburb with stunning ocean views and world-class restaurants.',
+ 'R8.5M',
+ '+8.2%',
+ ARRAY['Beach', 'Luxury', 'Views', 'Dining'],
+ 80,
+ 'Low',
+ 3,
+ 30,
+ 4200,
+ 35,
+ '[
+   {"year": 2020, "price": "R6.8M"},
+   {"year": 2021, "price": "R7.2M"},
+   {"year": 2022, "price": "R7.8M"},
+   {"year": 2023, "price": "R8.1M"},
+   {"year": 2024, "price": "R8.5M"}
+ ]'::jsonb,
+ '[
+   {"name": "Camps Bay Beach", "distance": "0.1km", "type": "Recreation"},
+   {"name": "V&A Waterfront", "distance": "8.5km", "type": "Shopping"},
+   {"name": "Table Mountain", "distance": "12km", "type": "Nature"},
+   {"name": "Clifton Beaches", "distance": "2.1km", "type": "Recreation"}
+ ]'::jsonb,
+ '{"families": 35, "young_professionals": 45, "retirees": 20}'::jsonb,
+ '[
+   {"name": "MyCiTi Bus", "type": "Public Transport", "distance": "0.3km"},
+   {"name": "Cape Town CBD", "type": "Business District", "distance": "8km"},
+   {"name": "Cape Town Airport", "type": "Airport", "distance": "25km"}
+ ]'::jsonb,
+ '[
+   {"title": "Best Time to Visit", "content": "Summer months offer perfect beach weather", "rating": 5},
+   {"title": "Dining Scene", "content": "World-class restaurants with ocean views", "rating": 5},
+   {"title": "Parking", "content": "Limited street parking, use private lots", "rating": 3},
+   {"title": "Nightlife", "content": "Vibrant sunset bars and cocktail lounges", "rating": 4}
+ ]'::jsonb),
+
+('22222222-2222-2222-2222-222222222222',
+ 'Constantia',
+ 'Cape Town',
+ 'Western Cape',
+ 'Prestigious wine estate area known for family homes, excellent schools, and vineyards.',
+ 'R6.2M',
+ '+6.5%',
+ ARRAY['Wine Estates', 'Schools', 'Family-Friendly', 'Nature'],
+ 65,
+ 'Low',
+ 8,
+ 15,
+ 12000,
+ 42,
+ '[
+   {"year": 2020, "price": "R5.1M"},
+   {"year": 2021, "price": "R5.4M"},
+   {"year": 2022, "price": "R5.8M"},
+   {"year": 2023, "price": "R6.0M"},
+   {"year": 2024, "price": "R6.2M"}
+ ]'::jsonb,
+ '[
+   {"name": "Constantia Wine Route", "distance": "2km", "type": "Recreation"},
+   {"name": "Kirstenbosch Gardens", "distance": "5km", "type": "Nature"},
+   {"name": "Constantia Village", "distance": "1km", "type": "Shopping"},
+   {"name": "Silvermist Estate", "distance": "3km", "type": "Nature"}
+ ]'::jsonb,
+ '{"families": 60, "young_professionals": 25, "retirees": 15}'::jsonb,
+ '[
+   {"name": "Main Road Bus Route", "type": "Public Transport", "distance": "0.5km"},
+   {"name": "Southern Suburbs Rail", "type": "Train Station", "distance": "4km"},
+   {"name": "Cape Town CBD", "type": "Business District", "distance": "15km"}
+ ]'::jsonb,
+ '[
+   {"title": "Schools", "content": "Home to some of Cape Towns best private schools", "rating": 5},
+   {"title": "Wine Culture", "content": "Perfect for wine enthusiasts with estates nearby", "rating": 5},
+   {"title": "Traffic", "content": "Can be congested during school hours", "rating": 3},
+   {"title": "Nature Access", "content": "Mountain trails and green spaces abundant", "rating": 5}
+ ]'::jsonb),
+
+-- Johannesburg Neighborhoods
+('33333333-3333-3333-3333-333333333333',
+ 'Sandton',
+ 'Johannesburg',
+ 'Gauteng',
+ 'Premier business and residential hub with luxury apartments, shopping, and dining.',
+ 'R4.8M',
+ '+9.8%',
+ ARRAY['Business District', 'Luxury', 'Shopping', 'Security'],
+ 85,
+ 'Low',
+ 12,
+ 150,
+ 35000,
+ 33,
+ '[
+   {"year": 2020, "price": "R3.8M"},
+   {"year": 2021, "price": "R4.1M"},
+   {"year": 2022, "price": "R4.3M"},
+   {"year": 2023, "price": "R4.5M"},
+   {"year": 2024, "price": "R4.8M"}
+ ]'::jsonb,
+ '[
+   {"name": "Sandton City Mall", "distance": "1km", "type": "Shopping"},
+   {"name": "Nelson Mandela Square", "distance": "0.8km", "type": "Shopping"},
+   {"name": "Gautrain Station", "distance": "0.5km", "type": "Transport"},
+   {"name": "Hyde Park Corner", "distance": "3km", "type": "Shopping"}
+ ]'::jsonb,
+ '{"families": 30, "young_professionals": 55, "retirees": 15}'::jsonb,
+ '[
+   {"name": "Gautrain", "type": "Rapid Transit", "distance": "0.5km"},
+   {"name": "Johannesburg CBD", "type": "Business District", "distance": "12km"},
+   {"name": "OR Tambo Airport", "type": "Airport", "distance": "22km"}
+ ]'::jsonb,
+ '[
+   {"title": "Business Hub", "content": "Heart of Johannesburgs business district", "rating": 5},
+   {"title": "Shopping", "content": "World-class malls and boutiques", "rating": 5},
+   {"title": "Security", "content": "Excellent security with gated complexes", "rating": 5},
+   {"title": "Cost of Living", "content": "Premium pricing reflects exclusive location", "rating": 3}
+ ]'::jsonb),
+
+-- Durban Neighborhoods
+('44444444-4444-4444-4444-444444444444',
+ 'Umhlanga',
+ 'Durban',
+ 'KwaZulu-Natal',
+ 'Coastal suburb with beachfront living, modern developments, and business centers.',
+ 'R3.2M',
+ '+7.5%',
+ ARRAY['Beachfront', 'Modern', 'Business', 'Entertainment'],
+ 75,
+ 'Medium',
+ 5,
+ 45,
+ 18000,
+ 36,
+ '[
+   {"year": 2020, "price": "R2.6M"},
+   {"year": 2021, "price": "R2.8M"},
+   {"year": 2022, "price": "R2.9M"},
+   {"year": 2023, "price": "R3.0M"},
+   {"year": 2024, "price": "R3.2M"}
+ ]'::jsonb,
+ '[
+   {"name": "Umhlanga Beach", "distance": "0.5km", "type": "Recreation"},
+   {"name": "Gateway Theatre of Shopping", "distance": "2km", "type": "Shopping"},
+   {"name": "Umhlanga Rocks Promenade", "distance": "1km", "type": "Recreation"},
+   {"name": "Sibaya Casino", "distance": "4km", "type": "Entertainment"}
+ ]'::jsonb,
+ '{"families": 40, "young_professionals": 45, "retirees": 15}'::jsonb,
+ '[
+   {"name": "M4 Highway", "type": "Highway Access", "distance": "1km"},
+   {"name": "King Shaka Airport", "type": "Airport", "distance": "18km"},
+   {"name": "Durban CBD", "type": "Business District", "distance": "15km"}
+ ]'::jsonb,
+ '[
+   {"title": "Beach Lifestyle", "content": "Year-round warm weather and beach access", "rating": 5},
+   {"title": "Business Access", "content": "Growing business hub with office parks", "rating": 4},
+   {"title": "Entertainment", "content": "Restaurants, bars, and shopping nearby", "rating": 5},
+   {"title": "Humidity", "content": "Subtropical climate can be humid", "rating": 3}
+ ]'::jsonb),
+
+-- Pretoria Neighborhoods
+('55555555-5555-5555-5555-555555555555',
+ 'Waterkloof',
+ 'Pretoria',
+ 'Gauteng',
+ 'Exclusive diplomatic and residential area with embassies and luxury homes.',
+ 'R5.5M',
+ '+5.2%',
+ ARRAY['Diplomatic', 'Luxury', 'Established', 'Green'],
+ 60,
+ 'Low',
+ 6,
+ 20,
+ 8000,
+ 45,
+ '[
+   {"year": 2020, "price": "R4.9M"},
+   {"year": 2021, "price": "R5.1M"},
+   {"year": 2022, "price": "R5.2M"},
+   {"year": 2023, "price": "R5.4M"},
+   {"year": 2024, "price": "R5.5M"}
+ ]'::jsonb,
+ '[
+   {"name": "Brooklyn Mall", "distance": "5km", "type": "Shopping"},
+   {"name": "Waterkloof Ridge", "distance": "2km", "type": "Nature"},
+   {"name": "Union Buildings", "distance": "8km", "type": "Landmark"},
+   {"name": "Menlyn Park Mall", "distance": "12km", "type": "Shopping"}
+ ]'::jsonb,
+ '{"families": 50, "young_professionals": 20, "retirees": 30}'::jsonb,
+ '[
+   {"name": "N1 Highway", "type": "Highway Access", "distance": "8km"},
+   {"name": "Pretoria CBD", "type": "Business District", "distance": "10km"},
+   {"name": "OR Tambo Airport", "type": "Airport", "distance": "55km"}
+ ]'::jsonb,
+ '[
+   {"title": "Prestige", "content": "Most prestigious area in Pretoria with embassies", "rating": 5},
+   {"title": "Established Area", "content": "Mature trees and well-maintained properties", "rating": 5},
+   {"title": "Exclusivity", "content": "High property values and exclusive community", "rating": 4},
+   {"title": "Distance", "content": "Further from main business hubs", "rating": 3}
+ ]'::jsonb),
+
+-- Stellenbosch
+('66666666-6666-6666-6666-666666666666',
+ 'Stellenbosch Central',
+ 'Stellenbosch',
+ 'Western Cape',
+ 'Historic university town in the heart of wine country with vibrant culture.',
+ 'R3.8M',
+ '+6.1%',
+ ARRAY['University', 'Wine Country', 'Historic', 'Culture'],
+ 90,
+ 'Low',
+ 15,
+ 80,
+ 25000,
+ 28,
+ '[
+   {"year": 2020, "price": "R3.2M"},
+   {"year": 2021, "price": "R3.4M"},
+   {"year": 2022, "price": "R3.5M"},
+   {"year": 2023, "price": "R3.7M"},
+   {"year": 2024, "price": "R3.8M"}
+ ]'::jsonb,
+ '[
+   {"name": "Stellenbosch University", "distance": "1km", "type": "Education"},
+   {"name": "Eikestad Mall", "distance": "0.8km", "type": "Shopping"},
+   {"name": "Dorp Street", "distance": "0.3km", "type": "Historic"},
+   {"name": "Jonkershoek Valley", "distance": "5km", "type": "Nature"}
+ ]'::jsonb,
+ '{"families": 35, "young_professionals": 50, "retirees": 15}'::jsonb,
+ '[
+   {"name": "R44 Highway", "type": "Highway Access", "distance": "2km"},
+   {"name": "Cape Town", "type": "City", "distance": "50km"},
+   {"name": "Cape Town Airport", "type": "Airport", "distance": "35km"}
+ ]'::jsonb,
+ '[
+   {"title": "University Town", "content": "Vibrant student culture and young energy", "rating": 5},
+   {"title": "Wine Country", "content": "Surrounded by world-class wine estates", "rating": 5},
+   {"title": "Walkability", "content": "Historic center is highly walkable", "rating": 5},
+   {"title": "Seasonal Crowds", "content": "Busy during academic terms and tourist season", "rating": 3}
+ ]'::jsonb)
+ON CONFLICT (id) DO NOTHING;
+
 -- Re-add the foreign key constraint (but make it not enforced for demo)
 -- In production, you would want to properly set this up with real auth.users
 -- For now, we'll leave it without the constraint for demo purposes

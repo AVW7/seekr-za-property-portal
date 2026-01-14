@@ -139,3 +139,70 @@ export interface AffordabilityProfile {
   max_monthly_payment: number
   created_at: string
 }
+
+// Market Insights Types
+export interface MarketData {
+  month: string
+  price: number
+  sales: number
+}
+
+export interface PropertyTypeData {
+  type: string
+  averagePrice: number
+  count: number
+  change: number
+}
+
+export interface PriceHistory {
+  year: number
+  price: string
+}
+
+export interface Amenity {
+  name: string
+  distance: string
+  type: string
+}
+
+export interface Demographics {
+  families: number
+  young_professionals: number
+  retirees: number
+}
+
+export interface TransportLink {
+  name: string
+  type: string
+  distance: string
+}
+
+export interface LocalInsight {
+  title: string
+  content: string
+  rating: number
+}
+
+export interface NeighborhoodReport {
+  id: number
+  name: string
+  city: string
+  province?: string
+  description: string
+  average_price: string
+  price_change: string
+  highlights: string[]
+  walk_score: number
+  crime_rate: string
+  schools: number
+  restaurants: number
+  population: number
+  median_age: number
+  price_history: PriceHistory[]
+  amenities: Amenity[]
+  demographics: Demographics
+  transport_links: TransportLink[]
+  local_insights: LocalInsight[]
+  created_at?: string
+  updated_at?: string
+}

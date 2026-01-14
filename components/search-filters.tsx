@@ -80,7 +80,10 @@ export function SearchFilters() {
       if (error) {
         console.error('Error saving persona:', error)
         // If table doesn't exist, show appropriate message
-        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        if (error.code === 'PGRST116' || 
+            error.message?.includes('relation') || 
+            error.message?.includes('does not exist') ||
+            Object.keys(error).length === 0) { // Handle empty error objects
           toast({
             title: "Database setup required",
             description: "Please run the database setup scripts first",

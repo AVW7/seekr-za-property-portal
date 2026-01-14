@@ -68,13 +68,16 @@ export default function PersonasPage() {
         .from('saved_searches')
         .select('*')
         .eq('user_id', user?.id)
-        .order('updated_at', { ascending: false })
+        .order('created_at', { ascending: false })
 
       if (error) {
         console.error('Error loading personas:', error)
         // If table doesn't exist, show empty state
-        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-          console.warn('saved_searches table not found - database setup needed')
+        if (error.code === 'PGRST116' || 
+            error.message?.includes('relation') || 
+            error.message?.includes('does not exist') ||
+            Object.keys(error).length === 0) { // Handle empty error objects
+          console.warn('saved_searches table not found or empty error - database setup needed')
           setPersonas([])
         } else {
           throw error
