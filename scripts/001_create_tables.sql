@@ -81,7 +81,8 @@ CREATE TABLE IF NOT EXISTS public.saved_searches (
   name TEXT NOT NULL,
   search_params JSONB NOT NULL,
   alert_enabled BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create saved_properties table

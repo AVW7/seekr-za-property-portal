@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -5,8 +8,144 @@ import { Heart, MapPin, Bed, Bath, Car, CheckCircle2, Zap, Wifi } from "lucide-r
 import type { Property } from "@/lib/types"
 import Link from "next/link"
 import Image from "next/image"
+import { useAuth } from "@/lib/auth-context"
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 
-export function PropertyCard({ property }: { property: Property }) {
+interface PropertyCardProps {
+  property: Property
+  isSaved?: boolean
+  onSaveToggle?: () => void
+}
+
+export default function PropertyCard({ property, isSaved: initialIsSaved = false, onSaveToggle }: PropertyCardProps) {
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [isSaved, setIsSaved] = useState(initialIsSaved)
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (user && !initialIsSaved) {
+      checkIfSaved()
+    }
+  }, [user, property.id])
+
+  const checkIfSaved = async () => {
+    if (!user) return
+
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('saved_properties')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('property_id', property.id)
+        .maybeSingle()
+
+      if (error) {
+        console.error('Error checking saved status:', error)
+        // If table doesn't exist, assume not saved
+        if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.warn('saved_properties table not found - database setup needed')
+          setIsSaved(false)
+        }
+      } else {
+        setIsSaved(!!data)
+      }
+    } catch (error) {
+      console.error('Error checking saved status:', error)
+      setIsSaved(false)
+    }
+  }
+
+  const handleSaveToggle = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save properties",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const supabase = createClient()
+
+      if (isSaved) {
+        // Remove from saved
+        const { error } = await supabase
+          .from('saved_properties')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('property_id', property.id)
+
+        if (error) {
+          console.error('Error removing saved property:', error)
+          // If table doesn't exist, show appropriate message
+          if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+            toast({
+              title: "Database setup required",
+              description: "Please run the database setup scripts first",
+              variant: "destructive"
+            })
+          } else {
+            throw error
+          }
+        } else {
+          setIsSaved(false)
+          toast({
+            title: "Property removed",
+            description: "Removed from your saved properties"
+          })
+
+          // Call parent callback if provided
+          if (onSaveToggle) onSaveToggle()
+        }
+      } else {
+        // Add to saved
+        const { error } = await supabase
+          .from('saved_properties')
+          .insert({
+            user_id: user.id,
+            property_id: property.id
+          })
+
+        if (error) {
+          console.error('Error saving property:', error)
+          // If table doesn't exist, show appropriate message
+          if (error.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+            toast({
+              title: "Database setup required",
+              description: "Please run the database setup scripts first",
+              variant: "destructive"
+            })
+          } else {
+            throw error
+          }
+        } else {
+          setIsSaved(true)
+          toast({
+            title: "Property saved",
+            description: "Added to your saved properties"
+          })
+        }
+      }
+    } catch (error: any) {
+      console.error('Error toggling saved status:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update saved status",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-ZA", {
       style: "currency",
@@ -32,8 +171,14 @@ export function PropertyCard({ property }: { property: Property }) {
               Verified
             </Badge>
           )}
-          <Button size="icon" variant="secondary" className="absolute top-3 right-3">
-            <Heart className="h-4 w-4" />
+          <Button 
+            size="icon" 
+            variant="secondary" 
+            className="absolute top-3 right-3"
+            onClick={handleSaveToggle}
+            disabled={isLoading}
+          >
+            <Heart className={`h-4 w-4 transition-all ${isSaved ? 'fill-primary text-primary' : ''}`} />
           </Button>
         </div>
       </Link>

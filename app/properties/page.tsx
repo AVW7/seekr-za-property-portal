@@ -1,6 +1,6 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { PropertyCard } from "@/components/property-card"
+import PropertyCard from "@/components/property-card"
 import { MobilePropertyFilters } from "@/components/mobile-property-filters"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
