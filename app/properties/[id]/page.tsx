@@ -57,7 +57,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
       <main className="flex-1">
         {/* Mobile-first Gallery - Full width on mobile */}
         <div className="w-full">
-          <PropertyGallery images={property.images} title={property.title} />
+          <PropertyGallery images={property.image_urls || []} title={property.title} />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">

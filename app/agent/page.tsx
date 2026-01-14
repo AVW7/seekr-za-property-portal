@@ -91,7 +91,7 @@ export default async function AgentDashboardPage() {
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            {new Date(lead.created_at).toLocaleDateString()}
+                            {lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'N/A'}
                           </p>
                         </div>
                         <Button size="sm" variant="outline" asChild>

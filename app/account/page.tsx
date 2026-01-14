@@ -1,29 +1,32 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
-import { SavedProperty, SavedSearch, Property } from '@/lib/types'
 import Link from 'next/link'
 import { Heart, Search, Calculator, Settings, TrendingUp, Bell, Home } from 'lucide-react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { BackButton } from '@/components/back-button'
+import { trpc } from '@/utils/trpc'
 
 export default function AccountDashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [savedPropertiesCount, setSavedPropertiesCount] = useState(0)
-  const [savedSearchesCount, setSavedSearchesCount] = useState(0)
-  const [recentProperties, setRecentProperties] = useState<(SavedProperty & { property: Property })[]>([])
-  const [recentSearches, setRecentSearches] = useState<SavedSearch[]>([])
+
+  // Use tRPC to fetch dashboard data
+  const { data: dashboardData, isLoading: loading } = trpc.account.getDashboardData.useQuery(
+    undefined,
+    {
+      enabled: !!user,
+      retry: false,
+    }
+  )
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -31,93 +34,11 @@ export default function AccountDashboard() {
     }
   }, [user, authLoading, router])
 
-  useEffect(() => {
-    if (user) {
-      loadDashboardData()
-    }
-  }, [user])
-
-  const loadDashboardData = async () => {
-    try {
-      const supabase = createClient()
-
-      // Debug: Check if user is available
-      if (!user?.id) {
-        console.warn('No user ID available for dashboard data')
-        return
-      }
-
-      console.log('Loading dashboard data for user:', user.id)
-
-      // Load saved properties count and recent saved properties
-      const { data: savedProps, error: savedPropsError } = await supabase
-        .from('saved_properties')
-        .select('*, property:properties(*)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(3)
-
-      if (savedPropsError) {
-        console.error('Error loading saved properties:', savedPropsError)
-        // If table doesn't exist, show empty state instead of crashing
-        if (savedPropsError.code === 'PGRST116' || 
-            savedPropsError.message?.includes('relation') || 
-            savedPropsError.message?.includes('does not exist') ||
-            Object.keys(savedPropsError).length === 0) { // Handle empty error objects
-          console.warn('saved_properties table not found or empty error - database setup needed')
-          setSavedPropertiesCount(0)
-          setRecentProperties([])
-        } else {
-          throw savedPropsError
-        }
-      } else {
-        console.log('Loaded saved properties:', savedProps?.length || 0)
-        setSavedPropertiesCount(savedProps?.length || 0)
-        setRecentProperties(savedProps as any || [])
-      }
-
-      // Load saved searches count and recent searches
-      const { data: savedSearchesData, error: savedSearchesError } = await supabase
-        .from('saved_searches')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (savedSearchesError) {
-        console.error('Error loading saved searches:', savedSearchesError)
-        // If table doesn't exist, show empty state instead of crashing
-        if (savedSearchesError.code === 'PGRST116' || 
-            savedSearchesError.message?.includes('relation') || 
-            savedSearchesError.message?.includes('does not exist') ||
-            Object.keys(savedSearchesError).length === 0) { // Handle empty error objects
-          console.warn('saved_searches table not found or empty error - database setup needed')
-          setSavedSearchesCount(0)
-          setRecentSearches([])
-        } else {
-          throw savedSearchesError
-        }
-      } else {
-        console.log('Loaded saved searches:', savedSearchesData?.length || 0)
-        setSavedSearchesCount(savedSearchesData?.length || 0)
-        setRecentSearches(savedSearchesData || [])
-      }
-    } catch (error: any) {
-      console.error('Error loading dashboard data:', {
-        message: error?.message,
-        details: error?.details,
-        hint: error?.hint,
-        code: error?.code,
-        error
-      })
-      // Set empty state on any error to prevent crashes
-      setSavedPropertiesCount(0)
-      setRecentProperties([])
-      setSavedSearchesCount(0)
-      setRecentSearches([])
-    } finally {
-      setLoading(false)
-    }
-  }
+  const savedPropertiesCount = dashboardData?.stats.savedPropertiesCount || 0
+  const savedSearchesCount = dashboardData?.stats.savedSearchesCount || 0
+  const activeAlertsCount = dashboardData?.stats.activeAlertsCount || 0
+  const recentProperties = dashboardData?.recentProperties || []
+  const recentSearches = dashboardData?.recentSearches || []
 
   if (authLoading || !user) {
     return (
@@ -225,7 +146,7 @@ export default function AccountDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '...' : recentSearches.filter(s => s.alert_enabled).length}
+              {loading ? '...' : activeAlertsCount}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Search alerts enabled</p>
             <Link href="/account/settings">
@@ -295,9 +216,9 @@ export default function AccountDashboard() {
                   href={`/properties/${saved.property_id}`}
                   className="flex items-center gap-4 p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
-                  {saved.property?.images?.[0] ? (
+                  {saved.property?.image_urls?.[0] ? (
                     <img
-                      src={saved.property.images[0]}
+                      src={saved.property.image_urls[0]}
                       alt={saved.property.title}
                       className="w-20 h-20 object-cover rounded"
                     />
@@ -351,7 +272,7 @@ export default function AccountDashboard() {
                     <div>
                       <h4 className="font-medium">{search.name}</h4>
                       <p className="text-xs text-muted-foreground">
-                        Updated {new Date(search.updated_at).toLocaleDateString()}
+                        Updated {new Date(search.updated_at ?? search.created_at ?? Date.now()).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

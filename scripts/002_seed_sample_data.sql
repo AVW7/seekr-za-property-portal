@@ -36,7 +36,7 @@ INSERT INTO public.properties (
   monthly_levy, monthly_rates, sectional_title, freehold,
   has_solar, has_inverter, has_fiber, pet_friendly, in_estate, estate_name,
   address, suburb, city, province, postal_code, latitude, longitude,
-  images, verified, status
+  image_urls, verified, status
 ) VALUES
 -- Cape Town Properties (using Sarah Johnson's agent_id)
 ('a1111111-1111-1111-1111-111111111111', 

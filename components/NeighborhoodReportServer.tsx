@@ -1,3 +1,5 @@
+'use client'
+
 import { NeighborhoodReport } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -259,5 +261,3 @@ export default function NeighborhoodReportServer({ neighborhood }: NeighborhoodR
     </div>
   )
 }
-
-export type { NeighborhoodReport }

@@ -16,11 +16,11 @@ export function PropertyGallery({ images, title }: PropertyGalleryProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % images.length)
+    setSelectedImage((prev) => images.length > 0 ? (prev + 1) % images.length : 0)
   }
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + images.length) % images.length)
+    setSelectedImage((prev) => images.length > 0 ? (prev - 1 + images.length) % images.length : 0)
   }
 
   return (
