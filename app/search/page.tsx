@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { createClient } from "@/lib/supabase/server"
 import { MobilePropertyFilters } from "@/components/mobile-property-filters"
+import { SearchWithPersona } from "@/components/search-with-persona"
 import { Brain, Sparkles, Save, Bell, SlidersHorizontal, ChevronDown } from "lucide-react"
 
 export const metadata = {
@@ -68,6 +69,9 @@ export default async function SearchPage() {
         <div className="flex-1 flex overflow-hidden">
              {/* Left Panel: Property Results */}
              <div className="w-full lg:w-[500px] xl:w-[600px] flex flex-col border-r bg-background overflow-y-auto">
+                {/* Active Persona Banner */}
+                <SearchWithPersona />
+                
                 {/* Results Header Bar */}
                 <div className="p-4 border-b space-y-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
                     {/* Filters Toggle & Sort */}

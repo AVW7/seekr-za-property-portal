@@ -37,7 +37,7 @@ export function PropertyGallery({ images, title }: PropertyGalleryProps) {
         >
           <Image
             src={images[0] || "/placeholder.svg"}
-            alt={title}
+            alt={title || "Property image"}
             fill
             className="object-cover hover:scale-105 transition-transform"
           />

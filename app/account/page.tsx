@@ -219,7 +219,7 @@ export default function AccountDashboard() {
                   {saved.property?.image_urls?.[0] ? (
                     <img
                       src={saved.property.image_urls[0]}
-                      alt={saved.property.title}
+                      alt={saved.property.title || "Property image"}
                       className="w-20 h-20 object-cover rounded"
                     />
                   ) : (

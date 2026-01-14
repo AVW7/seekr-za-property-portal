@@ -16,7 +16,7 @@ export function AgentCard({ agent }: AgentCardProps) {
           <div className="relative w-20 h-20 mx-auto">
             <Image
               src={agent.profile_image_url || "/placeholder.svg"}
-              alt={agent.company_name}
+              alt={agent.company_name || "Agent profile"}
               fill
               className="rounded-full object-cover"
             />

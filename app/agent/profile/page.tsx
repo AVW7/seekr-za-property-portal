@@ -47,7 +47,7 @@ export default async function ProfilePage() {
              <div className="flex items-center gap-6">
                 <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
                     {agent.profile_image_url ? (
-                        <img src={agent.profile_image_url} alt={agent.full_name} className="h-full w-full object-cover" />
+                        <img src={agent.profile_image_url} alt={agent.full_name || "Agent profile"} className="h-full w-full object-cover" />
                     ) : (
                         <span className="text-2xl text-muted-foreground font-semibold">
                             {agent.full_name?.charAt(0) || "A"}

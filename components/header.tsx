@@ -12,6 +12,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PersonaWidget } from "@/components/persona-widget";
 import {
   Sheet,
   SheetContent,
@@ -317,6 +318,8 @@ export function Header() {
                 <Bell className="h-5 w-5" />
               </Link>
             </Button>
+
+            <PersonaWidget />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

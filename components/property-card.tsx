@@ -161,7 +161,7 @@ export default function PropertyCard({ property, isSaved: initialIsSaved = false
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={(property.image_urls && property.image_urls.length > 0) ? property.image_urls[0] : "/placeholder.svg"}
-            alt={property.title}
+            alt={property.title || "Property image"}
             fill
             className="object-cover hover:scale-105 transition-transform duration-300"
           />
