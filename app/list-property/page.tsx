@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import { BackButton } from "@/components/back-button"
-import { Building2, AlertCircle, CheckCircle2, Upload } from "lucide-react"
+import { Building2, AlertCircle, CheckCircle2, Upload, FileText, Camera, Send } from "lucide-react"
 
 const provinces = [
   "Western Cape",
@@ -81,7 +81,7 @@ export default function ListPropertyPage() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      router.push("/login")
+      // router.push("/login")
     } else {
       setUser(user)
     }
@@ -176,13 +176,67 @@ export default function ListPropertyPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
+        <div className="mb-8">
           <BackButton fallbackUrl="/properties" className="mb-4" />
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">List Your Property</h1>
-          <p className="text-muted-foreground">Fill in the details below to create a new property listing on SeekrZA</p>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">List with Seekr</h1>
+          <p className="text-muted-foreground text-lg">Follow these simple steps to get your property in front of thousands of buyers.</p>
+        
+          {/* Process Highlight Steps */}
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <Card className="bg-card/50 border-muted">
+              <CardContent className="pt-6 flex flex-col items-center text-center">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold mb-2">1. Property Details</h3>
+                <p className="text-sm text-muted-foreground">Enter the essential features and description.</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/50 border-muted">
+              <CardContent className="pt-6 flex flex-col items-center text-center">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  <Camera className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold mb-2">2. Visuals</h3>
+                <p className="text-sm text-muted-foreground">Upload high-quality images to showcase your space.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 border-muted">
+              <CardContent className="pt-6 flex flex-col items-center text-center">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                  <Send className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold mb-2">3. Publish</h3>
+                <p className="text-sm text-muted-foreground">Review your listing and go live instantly.</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {!user ? (
+          <Card className="bg-slate-50 border-dashed border-2 mt-8">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+              <Building2 className="h-16 w-16 text-muted-foreground/50" />
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">Ready to list your property?</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Sign in or create an account to start listing your properties on SeekrZA today.
+                </p>
+              </div>
+              <div className="flex gap-4 pt-4">
+                <Button onClick={() => router.push("/login")} size="lg">
+                  Log In
+                </Button>
+                <Button onClick={() => router.push("/auth/sign-up")} variant="outline" size="lg">
+                  Create Account
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -675,6 +729,7 @@ export default function ListPropertyPage() {
             </Button>
           </div>
         </form>
+        )}
       </div>
     </div>
   )
