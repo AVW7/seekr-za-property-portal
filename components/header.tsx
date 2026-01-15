@@ -46,141 +46,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/lib/auth-context";
-
-// --- Configuration Data ---
-const navConfig = {
-  primaryNav: [
-    {
-      id: "buy",
-      label: "Buy",
-      href: "/search",
-      type: "dropdown",
-      items: [
-        { label: "All homes", href: "/search" },
-        { label: "New developments", href: "/search?type=development" },
-        { label: "On show", href: "/search?filter=on-show" },
-        { label: "Bank assisted & repos", href: "/search?filter=bank-assisted" },
-        { label: "FSBO (verified owners)", href: "/search?filter=owner-listed" },
-      ],
-    },
-    {
-      id: "rent",
-      label: "Rent",
-      href: "/search?intent=rent",
-      type: "dropdown",
-      items: [
-        { label: "All rentals", href: "/search?intent=rent" },
-        { label: "Long‑term", href: "/search?intent=rent&type=long-term" },
-        { label: "Sectional title", href: "/search?intent=rent&type=sectional-title" },
-        { label: "Pet‑friendly", href: "/search?intent=rent&filter=pet-friendly" },
-      ],
-    },
-    {
-      id: "suburbs",
-      label: "Suburbs",
-      href: "/suburbs",
-      type: "mega",
-      columns: [
-        {
-          title: "Western Cape",
-          links: [
-            { label: "Cape Town", href: "/suburbs/western-cape/cape-town" },
-            {
-              label: "Somerset West",
-              href: "/suburbs/western-cape/somerset-west",
-            },
-            {
-              label: "Stellenbosch",
-              href: "/suburbs/western-cape/stellenbosch",
-            },
-          ],
-        },
-        {
-          title: "Gauteng",
-          links: [
-            { label: "Sandton", href: "/suburbs/gauteng/sandton" },
-            { label: "Fourways", href: "/suburbs/gauteng/fourways" },
-            { label: "Centurion", href: "/suburbs/gauteng/centurion" },
-          ],
-        },
-        {
-          title: "KwaZulu‑Natal",
-          links: [
-            { label: "Durban North", href: "/suburbs/kzn/durban-north" },
-            { label: "Umhlanga", href: "/suburbs/kzn/umhlanga" },
-            { label: "Ballito", href: "/suburbs/kzn/ballito" },
-          ],
-        },
-      ],
-    },
-    {
-      id: "buyability",
-      label: "BuyAbility",
-      href: "/buyability",
-      type: "inline",
-      badge: { text: "ZA", variant: "brand" },
-      tooltip: "SA-specific affordability incl. transfer duty, levies & rates",
-    },
-    {
-      id: "market",
-      label: "Market",
-      href: "/insights",
-      type: "dropdown",
-      items: [
-        { label: "Market Insights", href: "/insights" },
-        { label: "Sold prices", href: "/market/sold-prices" },
-        { label: "Price trends", href: "/market/trends" },
-        { label: "Comparables", href: "/market/comps" },
-      ],
-    },
-    {
-      id: "agents",
-      label: "For Agents",
-      href: "/agents",
-      type: "dropdown",
-      items: [
-        { label: "List with SeekrZA", href: "/agents/onboard" },
-        { label: "Agent login", href: "/agents/login" },
-        { label: "Feed specs", href: "/agents/feeds" },
-        { label: "Pricing", href: "/agents/pricing" },
-      ],
-    },
-  ],
-  mobile: {
-    sheetMenu: {
-      sections: [
-        {
-          title: "Browse",
-          links: [
-            { label: "Buy", href: "/search" },
-            { label: "Rent", href: "/search?intent=rent" },
-            { label: "Suburbs", href: "/suburbs" },
-            { label: "Market Insights", href: "/insights" },
-          ],
-        },
-        {
-          title: "Tools",
-          links: [
-            { label: "BuyAbility", href: "/buyability" },
-            { label: "Alerts", href: "/alerts" },
-            { label: "Saved", href: "/saved" },
-          ],
-        },
-        {
-          title: "Agents",
-          links: [
-            { label: "List with SeekrZA", href: "/agents/onboard" },
-            { label: "Agent login", href: "/agents/login" },
-          ],
-        },
-      ],
-    },
-  },
-};
+import { navConfig } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { user, signOut } = useAuth();
+  const pathname = usePathname();
 
   return (
     <header id="seekrza-header" className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -188,36 +62,40 @@ export function Header() {
         {/* Logo */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="https://cdn.seekrza.com/brand/seekrza-logo.svg"
-              alt="SeekrZA"
-              width={120}
-              height={32}
-              className="h-8 w-auto"
-              priority
-              // Simple fallback if external image fails or loads slowly
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                const parent = e.currentTarget.parentElement;
-                if (parent) {
-                  parent.innerHTML += '<span class="text-xl font-bold">SeekrZA</span>';
-                }
-              }}
-            />
+            {!logoError ? (
+              <Image
+                src="https://cdn.seekrza.com/brand/seekrza-logo.svg"
+                alt="SeekrZA"
+                width={120}
+                height={32}
+                className="h-8 w-auto"
+                priority
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+                <span className="text-xl font-bold">SeekrZA</span>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
           <TooltipProvider>
-            <NavigationMenu className="hidden lg:flex">
+            <NavigationMenu className="hidden lg:flex" viewport={false}>
               <NavigationMenuList>
                 {navConfig.primaryNav.map((item) => {
+                   const isActive = pathname.startsWith(item.href) && item.href !== "/";
+
                   if (item.type === "inline") {
                     return (
                       <NavigationMenuItem key={item.id}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                              <Link href={item.href}>
+                              <Link 
+                                href={item.href}
+                                className={cn(
+                                  isActive && "bg-accent text-accent-foreground"
+                                )}
+                              >
                                 {item.label}
                                 {item.badge && (
                                   <Badge
@@ -241,9 +119,11 @@ export function Header() {
                   if (item.type === "dropdown" && item.items) {
                     return (
                       <NavigationMenuItem key={item.id}>
-                        <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                        <NavigationMenuTrigger className={cn(isActive && "bg-accent text-accent-foreground")}>
+                          {item.label}
+                        </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <ul className="grid w-50 gap-2 p-4">
+                          <ul className="grid w-[200px] gap-2 p-4">
                             {item.items.map((subItem) => (
                               <li key={subItem.href}>
                                 <NavigationMenuLink asChild>
@@ -267,9 +147,11 @@ export function Header() {
                   if (item.type === "mega" && item.columns) {
                     return (
                       <NavigationMenuItem key={item.id}>
-                        <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                        <NavigationMenuTrigger className={cn(isActive && "bg-accent text-accent-foreground")}>
+                          {item.label}
+                        </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <div className="grid w-150 grid-cols-3 gap-5 p-6">
+                          <div className="grid w-[600px] grid-cols-3 gap-5 p-6">
                             {item.columns.map((col) => (
                               <div key={col.title} className="space-y-4">
                                 <h4 className="font-medium leading-none">
