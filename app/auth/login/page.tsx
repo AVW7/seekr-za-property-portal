@@ -3,9 +3,6 @@
 import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { BackButton } from "@/components/back-button"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Building2 } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -43,61 +39,50 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 flex items-center justify-center relative p-6 md:p-10 bg-muted/50">
-        <div className="absolute top-6 left-4 sm:left-6 md:left-8">
-          <BackButton fallbackUrl="/" />
-        </div>
-        <div className="w-full max-w-sm">
-          <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Agent Login</CardTitle>
-              <CardDescription>Enter your email to access your agent dashboard</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin}>
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="agent@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  {error && <p className="text-sm text-destructive">{error}</p>}
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Logging in..." : "Login"}
-                  </Button>
-                </div>
-                <div className="mt-4 text-center text-sm">
-                  Don't have an account?{" "}
-                  <Link href="/auth/sign-up" className="underline underline-offset-4">
-                    Register as Agent
-                  </Link>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      </main>
-      <Footer />
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Agent Login</CardTitle>
+          <CardDescription>Enter your email to access your agent dashboard</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="agent@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
+              </Button>
+            </div>
+            <div className="mt-4 text-center text-sm">
+              Don't have an account?{" "}
+              <Link href="/auth/sign-up" className="underline underline-offset-4">
+                Register as Agent
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }
