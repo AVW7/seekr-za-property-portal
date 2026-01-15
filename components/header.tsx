@@ -10,6 +10,15 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  User as UserIcon,
+  Search,
+  Home,
+  MapPin,
+  BarChart3,
+  Calculator,
+  Briefcase,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PersonaWidget } from "@/components/persona-widget";
@@ -20,6 +29,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -291,45 +306,117 @@ export function Header() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-75 sm:w-100">
-              <SheetHeader>
-                <SheetTitle className="text-left">Menu</SheetTitle>
+            <SheetContent side="right" className="w-[320px] sm:w-[400px] flex flex-col p-0 gap-0">
+              <SheetHeader className="p-6 border-b text-left bg-muted/10">
+                <SheetTitle className="flex items-center gap-2">
+                  <span className="text-xl font-bold tracking-tight text-primary">SeekrZA</span>
+                </SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-6 py-6">
-                {!user && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" asChild onClick={() => setIsOpen(false)}>
-                      <Link href="/auth/login">Sign in</Link>
-                    </Button>
-                    <Button asChild onClick={() => setIsOpen(false)}>
-                      <Link href="/auth/sign-up">Sign up</Link>
-                    </Button>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-1">
-                  {navConfig.mobile.sheetMenu.sections.map((section) => (
-                    <div key={section.title} className="py-2">
-                      <h4 className="mb-2 px-2 text-sm font-medium text-muted-foreground">
-                        {section.title}
-                      </h4>
-                      {section.links.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          className="block rounded-md px-2 py-2 text-base font-medium hover:bg-accent hover:text-accent-foreground"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {link.label}
+              
+              <div className="flex-1 overflow-y-auto">
+                <div className="flex flex-col gap-6 p-6">
+                  {/* User Section */}
+                  {user ? (
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 border shadow-sm">
+                      <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
+                        <AvatarImage
+                          src={user.user_metadata?.avatar_url}
+                          alt={user.email || "User"}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                          {user.email?.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="font-semibold truncate text-sm">{user.email}</span>
+                        <Link href="/account" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1" onClick={() => setIsOpen(false)}>
+                          View Dashboard <ChevronDown className="h-3 w-3 -rotate-90" />
                         </Link>
-                      ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button variant="outline" asChild onClick={() => setIsOpen(false)} className="w-full justify-center h-11">
+                        <Link href="/auth/login">
+                          <LogIn className="mr-2 h-4 w-4" />
+                          Sign in
+                        </Link>
+                      </Button>
+                      <Button asChild onClick={() => setIsOpen(false)} className="w-full justify-center h-11 shadow-sm">
+                        <Link href="/auth/sign-up">
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          Sign up
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
 
-                <div className="mt-auto border-t pt-4">
-                  <div className="flex items-center justify-between px-2">
-                    <span className="text-sm font-medium">Appearance</span>
+                  {/* Navigation Accordion */}
+                  <Accordion type="single" collapsible className="w-full" defaultValue="Browse">
+                    {navConfig.mobile.sheetMenu.sections.map((section) => (
+                      <AccordionItem key={section.title} value={section.title} className="border-b-0 mb-2">
+                        <AccordionTrigger className="text-base font-semibold py-3 px-2 hover:bg-muted/50 rounded-lg hover:no-underline transition-all [&[data-state=open]]:bg-muted/50">
+                          <span className="flex items-center gap-3">
+                            <span className="p-1.5 rounded-md bg-primary/10 text-primary">
+                                {section.title === "Browse" && <Search className="h-4 w-4" />}
+                                {section.title === "Tools" && <Calculator className="h-4 w-4" />}
+                                {section.title === "Agents" && <Briefcase className="h-4 w-4" />}
+                            </span>
+                            {section.title}
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-2">
+                          <div className="flex flex-col space-y-1 pl-11 pt-1 border-l-2 ml-5 border-muted my-1">
+                            {section.links.map((link) => (
+                              <Link
+                                key={link.href}
+                                href={link.href}
+                                className="block py-2 px-2 text-sm text-muted-foreground hover:text-foreground hover:translate-x-1 transition-all rounded-r-md"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {link.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                  
+                  {user && (
+                    <div className="flex flex-col space-y-1 border-t pt-6 mt-2">
+                        <Link 
+                            href="/account/settings" 
+                            className="flex items-center gap-3 py-3 px-3 rounded-lg text-sm font-medium hover:bg-muted/50 transition-all"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <Settings className="h-4 w-4 text-muted-foreground" />
+                            Settings
+                        </Link>
+                        <button 
+                            className="flex items-center gap-3 py-3 px-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-all text-left w-full"
+                            onClick={() => {
+                                signOut();
+                                setIsOpen(false);
+                            }}
+                        >
+                            <LogOut className="h-4 w-4" />
+                            Sign out
+                        </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 bg-muted/10 border-t mt-auto">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                    System Operational
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground mr-2">Mode</span>
                     <ThemeToggle />
                   </div>
                 </div>
