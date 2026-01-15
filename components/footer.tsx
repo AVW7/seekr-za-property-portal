@@ -81,8 +81,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/calculator" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/buyability" className="text-muted-foreground hover:text-foreground transition-colors">
                   BuyAbility Calculator
+                </Link>
+              </li>
+              <li>
+                <Link href="/list-property" className="text-muted-foreground hover:text-foreground transition-colors">
+                  List Your Property
                 </Link>
               </li>
               <li>
@@ -136,18 +141,23 @@ export function Footer() {
             </h3>
             <ul className="space-y-3 text-sm">
               <li>
+                <Link href="/agents" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Seekr for Agents
+                </Link>
+              </li>
+              <li>
+                <Link href="/agents/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Pricing Plans
+                </Link>
+              </li>
+              <li>
                 <Link href="/agent" className="text-muted-foreground hover:text-foreground transition-colors">
                   Agent Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/agents/login" className="text-muted-foreground hover:text-foreground transition-colors">
                   Agent Login
-                </Link>
-              </li>
-              <li>
-                <Link href="/agent/listings/new" className="text-muted-foreground hover:text-foreground transition-colors">
-                  List New Property
                 </Link>
               </li>
               <li>

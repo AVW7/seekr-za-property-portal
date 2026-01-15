@@ -19,15 +19,63 @@ export const metadata = {
   description: "Find your perfect property with AI-powered smart search, personalized personas, and tiered filters.",
 }
 
-export default async function SearchPage() {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams
   const supabase = await createClient()
 
-  // Fetch some initial properties
-  const { data: properties } = await supabase
+  // Start with base query
+  let query = supabase
     .from("properties")
     .select("*")
     .eq("status", "active")
-    .limit(10)
+    .order("created_at", { ascending: false })
+
+  // Apply filters based on search params
+  
+  // 1. Intent (Buy vs Rent)
+  // properly map URL params to database enum values ("for_sale", "to_rent")
+  const intent = typeof params.intent === 'string' ? params.intent : 'buy'
+  const listingType = intent === 'rent' ? 'to_rent' : 'for_sale'
+  
+  query = query.eq("listing_type", listingType)
+
+  // 2. Property Type / Development
+  if (params.type) {
+    // If specifically looking for developments
+    if (params.type === 'development') {
+      // Search for developments in likely fields since it might not be a strict property_type
+      // Using text search on description/title if strictly 'development' type doesn't exist
+      query = query.ilike('description', '%development%')
+    } else {
+      query = query.eq("property_type", params.type)
+    }
+  }
+
+  // 3. Special Filters (On Show, Bank Assisted, FSBO)
+  if (params.filter) {
+    const filter = params.filter
+    if (filter === 'on-show') {
+      // This would ideally check a dedicated column or features JSON
+      // For now, we'll check if description mentions "on show" if no structured data
+      query = query.ilike('description', '%on show%') 
+    } else if (filter === 'bank-assisted') {
+      // Using or to combine conditions might be tricky with simple chaining in some clients, 
+      // but let's try a broad ilike matches or just one common term for now to be safe.
+      // Since we can't easily do OR on the same column with ilike in one chain without filter(), 
+      // we will search for the most common term.
+      query = query.ilike('description', '%bank%')
+    } else if (filter === 'owner-listed') {
+      // FSBO
+      query = query.ilike('description', '%private%')
+    }
+  }
+
+  // Execute query
+  const { data: properties } = await query.limit(20)
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -141,7 +189,7 @@ export default async function SearchPage() {
                                     Top Match
                                   </Badge>
                                 )}
-                                <PropertyCard property={property} />
+                                <PropertyCard property={property as any} />
                               </div>
                             ))
                         ) : (

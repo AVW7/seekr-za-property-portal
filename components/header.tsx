@@ -152,8 +152,8 @@ const navConfig = {
         {
           title: "Browse",
           links: [
-            { label: "Buy", href: "/buy" },
-            { label: "Rent", href: "/rent" },
+            { label: "Buy", href: "/search" },
+            { label: "Rent", href: "/search?intent=rent" },
             { label: "Suburbs", href: "/suburbs" },
             { label: "Market Insights", href: "/insights" },
           ],

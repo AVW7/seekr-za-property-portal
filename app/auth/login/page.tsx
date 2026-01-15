@@ -3,6 +3,9 @@
 import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { BackButton } from "@/components/back-button"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -40,15 +43,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-muted/50">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <div className="flex justify-center">
-            <Link href="/" className="flex items-center gap-2">
-              <Building2 className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">SeekrZA</span>
-            </Link>
-          </div>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 flex items-center justify-center relative p-6 md:p-10 bg-muted/50">
+        <div className="absolute top-6 left-4 sm:left-6 md:left-8">
+          <BackButton fallbackUrl="/" />
+        </div>
+        <div className="w-full max-w-sm">
+          <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Agent Login</CardTitle>
@@ -94,6 +96,8 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   )
 }

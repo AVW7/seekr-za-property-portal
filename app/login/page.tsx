@@ -6,6 +6,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -45,10 +47,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-        <BackButton fallbackUrl="/" />
-      </div>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1 flex items-center justify-center relative px-4 py-12 sm:px-6 lg:px-8 bg-muted/10">
+        <div className="absolute top-6 left-4 sm:left-6 md:left-8">
+          <BackButton fallbackUrl="/" />
+        </div>
 
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
@@ -106,13 +110,15 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-muted-foreground">
-            Don't have an agent account?{" "}
-            <Link href="/register" className="text-primary hover:underline font-medium">
-              Sign up
+            Don&apos;t have an agent account?{" "}
+            <Link href="/agents" className="text-primary hover:underline font-medium">
+              Register here
             </Link>
           </div>
         </CardFooter>
       </Card>
+      </main>
+      <Footer />
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const bottomNavItems = [
   { label: "Home", href: "/", icon: Home },
   { label: "Search", href: "/search", icon: Search },
-  { label: "BuyAbility", href: "/buyability", icon: Calculator },
+  { label: "BuyAbility", href: "/calculator", icon: Calculator },
   { label: "Saved", href: "/saved", icon: Heart },
 ];
 
