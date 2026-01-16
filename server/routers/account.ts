@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
+import type { SearchParams } from "@/lib/types";
 
 export const accountRouter = router({
   // Get dashboard stats
@@ -175,4 +176,116 @@ export const accountRouter = router({
       recentSearches,
     };
   }),
+
+  // Get persona feeds - all user personas with matching properties
+  getPersonaFeeds: protectedProcedure
+    .input(
+      z.object({
+        propertiesPerPersona: z.number().min(1).max(12).default(6),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { supabase, user } = ctx;
+
+      // Fetch all user personas
+      const { data: personas, error: personasError } = await supabase
+        .from("saved_searches")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
+
+      if (personasError) {
+        throw personasError;
+      }
+
+      if (!personas || personas.length === 0) {
+        return [];
+      }
+
+      // For each persona, fetch matching properties
+      const personaFeeds = await Promise.all(
+        personas.map(async (persona) => {
+          const searchParams = persona.search_params as SearchParams;
+          
+          // Build query based on search params
+          let query = supabase
+            .from("properties")
+            .select("*")
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(input.propertiesPerPersona);
+
+          // Apply listing type filter
+          if (searchParams.listingType) {
+            query = query.eq("listing_type", searchParams.listingType);
+          }
+
+          // Apply property type filter
+          if (searchParams.propertyType) {
+            query = query.eq("property_type", searchParams.propertyType);
+          }
+
+          // Apply location filters
+          if (searchParams.suburb) {
+            query = query.ilike("suburb", `%${searchParams.suburb}%`);
+          }
+          if (searchParams.city) {
+            query = query.ilike("city", `%${searchParams.city}%`);
+          }
+          if (searchParams.province) {
+            query = query.ilike("province", `%${searchParams.province}%`);
+          }
+
+          // Apply price filters
+          if (searchParams.priceMin) {
+            query = query.gte("price", searchParams.priceMin);
+          }
+          if (searchParams.priceMax) {
+            query = query.lte("price", searchParams.priceMax);
+          }
+
+          // Apply bedroom filter
+          if (searchParams.bedrooms) {
+            query = query.gte("bedrooms", searchParams.bedrooms);
+          }
+
+          // Apply bathroom filter
+          if (searchParams.bathrooms) {
+            query = query.gte("bathrooms", searchParams.bathrooms);
+          }
+
+          // Apply parking filters
+          if (searchParams.garages) {
+            query = query.gte("garages", searchParams.garages);
+          }
+
+          // Apply floor size filters
+          if (searchParams.floorSizeMin) {
+            query = query.gte("floor_size_sqm", searchParams.floorSizeMin);
+          }
+          if (searchParams.floorSizeMax) {
+            query = query.lte("floor_size_sqm", searchParams.floorSizeMax);
+          }
+
+          // Apply land size filters
+          if (searchParams.landSizeMin) {
+            query = query.gte("land_size_sqm", searchParams.landSizeMin);
+          }
+          if (searchParams.landSizeMax) {
+            query = query.lte("land_size_sqm", searchParams.landSizeMax);
+          }
+
+          // Fetch properties
+          const { data: properties, error: propertiesError } = await query;
+
+          return {
+            persona,
+            properties: propertiesError ? [] : (properties || []),
+            matchCount: properties?.length || 0,
+          };
+        })
+      );
+
+      return personaFeeds;
+    }),
 });

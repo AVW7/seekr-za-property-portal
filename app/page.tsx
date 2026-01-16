@@ -2,6 +2,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search-bar"
+import { PersonaTestDrive } from "@/components/persona-test-drive"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import CheckCircle2 from "lucide-react/dist/esm/icons/check-circle-2"
@@ -58,6 +59,9 @@ export default function HomePage() {
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/properties?city=durban">Durban</Link>
                   </Button>
+                </div>
+                <div className="mt-6 flex justify-center">
+                  <PersonaTestDrive variant="large" />
                 </div>
               </div>
             </div>
@@ -340,12 +344,13 @@ export default function HomePage() {
             </div>
 
             <div className="text-center mt-8">
-              <Button size="lg" asChild>
-                <Link href="/search">
-                  Create Your Search Persona
-                  <Sparkles className="ml-2 h-4 w-4" />
+              <PersonaTestDrive variant="large" />
+              <p className="mt-4 text-sm text-muted-foreground">
+                Want to save personas and get alerts?{" "}
+                <Link href="/auth/sign-up" className="text-primary hover:underline font-medium">
+                  Create a free account
                 </Link>
-              </Button>
+              </p>
             </div>
           </div>
         </section>

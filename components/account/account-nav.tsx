@@ -5,11 +5,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Home, Heart, Search, TrendingUp, Settings, Menu } from 'lucide-react'
+import { Home, Heart, Search, TrendingUp, Settings, Menu, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navigationItems = [
   { href: '/account', label: 'Dashboard', icon: Home },
+  { href: '/account/for-you', label: 'For You', icon: Sparkles },
   { href: '/saved', label: 'Saved', icon: Heart },
   { href: '/account/personas', label: 'Personas', icon: Search },
   { href: '/account/buyability', label: 'BuyAbility', icon: TrendingUp },

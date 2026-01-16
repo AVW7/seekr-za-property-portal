@@ -416,6 +416,7 @@ export type Database = {
           alert_enabled: boolean | null
           created_at: string | null
           id: string
+          last_viewed_at: string | null
           name: string
           search_params: Json
           updated_at: string | null
@@ -425,6 +426,7 @@ export type Database = {
           alert_enabled?: boolean | null
           created_at?: string | null
           id?: string
+          last_viewed_at?: string | null
           name: string
           search_params: Json
           updated_at?: string | null
@@ -434,6 +436,7 @@ export type Database = {
           alert_enabled?: boolean | null
           created_at?: string | null
           id?: string
+          last_viewed_at?: string | null
           name?: string
           search_params?: Json
           updated_at?: string | null

@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createClient } from "@/lib/supabase/server"
 import { MobilePropertyFilters } from "@/components/mobile-property-filters"
 import { SearchWithPersona } from "@/components/search-with-persona"
-import { Brain, Sparkles, Save, Bell, SlidersHorizontal, ChevronDown } from "lucide-react"
+import { Brain, Sparkles, Save, Bell, SlidersHorizontal, ChevronDown, UserPlus } from "lucide-react"
+import Link from "next/link"
 
 export const metadata = {
   title: "AI-Powered Property Search | SeekrZA",
@@ -36,40 +38,120 @@ export default async function SearchPage({
 
   // Apply filters based on search params
   
-  // 1. Intent (Buy vs Rent)
-  // properly map URL params to database enum values ("for_sale", "to_rent")
-  const intent = typeof params.intent === 'string' ? params.intent : 'buy'
-  const listingType = intent === 'rent' ? 'to_rent' : 'for_sale'
-  
-  query = query.eq("listing_type", listingType)
+  // Listing Type (sale/rent)
+  if (params.listingType) {
+    const listingType = params.listingType === 'rent' ? 'to_rent' : 'for_sale'
+    query = query.eq("listing_type", listingType)
+  } else if (params.intent) {
+    // Legacy support for intent param
+    const intent = typeof params.intent === 'string' ? params.intent : 'buy'
+    const listingType = intent === 'rent' ? 'to_rent' : 'for_sale'
+    query = query.eq("listing_type", listingType)
+  }
 
-  // 2. Property Type / Development
-  if (params.type) {
-    // If specifically looking for developments
+  // Location Filters
+  if (params.province) {
+    query = query.eq("province", params.province)
+  }
+  if (params.city) {
+    query = query.eq("city", params.city)
+  }
+
+  // Property Type
+  if (params.propertyType) {
+    query = query.eq("property_type", params.propertyType)
+  } else if (params.type) {
+    // Legacy support
     if (params.type === 'development') {
-      // Search for developments in likely fields since it might not be a strict property_type
-      // Using text search on description/title if strictly 'development' type doesn't exist
       query = query.ilike('description', '%development%')
     } else {
       query = query.eq("property_type", params.type)
     }
   }
 
-  // 3. Special Filters (On Show, Bank Assisted, FSBO)
+  // Price Range
+  if (params.minPrice) {
+    const minPrice = parseInt(params.minPrice as string)
+    if (!isNaN(minPrice)) {
+      query = query.gte("price", minPrice)
+    }
+  }
+  if (params.maxPrice) {
+    const maxPrice = parseInt(params.maxPrice as string)
+    if (!isNaN(maxPrice)) {
+      query = query.lte("price", maxPrice)
+    }
+  }
+
+  // Bedrooms
+  if (params.minBeds) {
+    const minBeds = parseInt(params.minBeds as string)
+    if (!isNaN(minBeds)) {
+      query = query.gte("beds", minBeds)
+    }
+  }
+  if (params.maxBeds) {
+    const maxBeds = parseInt(params.maxBeds as string)
+    if (!isNaN(maxBeds)) {
+      query = query.lte("beds", maxBeds)
+    }
+  }
+
+  // Bathrooms
+  if (params.minBaths) {
+    const minBaths = parseInt(params.minBaths as string)
+    if (!isNaN(minBaths)) {
+      query = query.gte("baths", minBaths)
+    }
+  }
+  if (params.maxBaths) {
+    const maxBaths = parseInt(params.maxBaths as string)
+    if (!isNaN(maxBaths)) {
+      query = query.lte("baths", maxBaths)
+    }
+  }
+
+  // Size/Area
+  if (params.minSize) {
+    const minSize = parseInt(params.minSize as string)
+    if (!isNaN(minSize)) {
+      query = query.gte("size_sqm", minSize)
+    }
+  }
+  if (params.maxSize) {
+    const maxSize = parseInt(params.maxSize as string)
+    if (!isNaN(maxSize)) {
+      query = query.lte("size_sqm", maxSize)
+    }
+  }
+
+  // Features (these would typically be in a features JSONB column)
+  // For now we'll check if they exist in the description
+  const features = []
+  if (params.pool === 'true') features.push('pool')
+  if (params.garden === 'true') features.push('garden')
+  if (params.garage === 'true') features.push('garage')
+  if (params.petFriendly === 'true') features.push('pet')
+  if (params.solar === 'true') features.push('solar')
+  if (params.fibre === 'true') features.push('fibre')
+  if (params.furnished === 'true') features.push('furnished')
+
+  // If features are specified, filter by them
+  if (features.length > 0) {
+    // This is a simple approach - check description
+    // In production you'd want a proper features JSONB column
+    const featurePattern = features.join('|')
+    query = query.ilike('description', `%${features[0]}%`)
+  }
+
+  // Legacy filter support
   if (params.filter) {
     const filter = params.filter
     if (filter === 'on-show') {
-      // This would ideally check a dedicated column or features JSON
-      // For now, we'll check if description mentions "on show" if no structured data
       query = query.ilike('description', '%on show%') 
     } else if (filter === 'bank-assisted') {
-      // Using or to combine conditions might be tricky with simple chaining in some clients, 
-      // but let's try a broad ilike matches or just one common term for now to be safe.
-      // Since we can't easily do OR on the same column with ilike in one chain without filter(), 
-      // we will search for the most common term.
       query = query.ilike('description', '%bank%')
     } else if (filter === 'owner-listed') {
-      // FSBO
       query = query.ilike('description', '%private%')
     }
   }
@@ -77,11 +159,39 @@ export default async function SearchPage({
   // Execute query
   const { data: properties } = await query.limit(20)
 
+  // Check if this is a persona test drive (has persona params but no persona ID)
+  const hasPersonaParams = !!(
+    params.propertyType || 
+    params.province || 
+    params.city || 
+    params.minPrice ||
+    params.maxPrice
+  )
+  const isTestDrive = hasPersonaParams && !params.persona
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       
       <main className="flex-1 flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+        {/* Test Drive Banner */}
+        {isTestDrive && (
+          <Alert className="rounded-none border-x-0 border-t-0 bg-gradient-to-r from-primary/10 to-accent/10">
+            <Sparkles className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between gap-4 flex-wrap">
+              <span className="text-sm">
+                <strong>Testing Persona Search!</strong> Create an account to save this persona and get instant alerts for new matches.
+              </span>
+              <Button size="sm" asChild>
+                <Link href="/auth/sign-up">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Sign Up Free
+                </Link>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Top Bar with Title and Actions */}
         <div className="border-b bg-gradient-to-br from-primary/5 via-accent/5 to-background">
           <div className="container mx-auto px-4 py-4">

@@ -38,6 +38,7 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { BackButton } from '@/components/back-button'
 import { AccountNav } from '@/components/account/account-nav'
+import { PersonaOnboarding } from '@/components/persona-onboarding'
 
 export default function PersonasPage() {
   const { user, loading: authLoading } = useAuth()
@@ -47,8 +48,6 @@ export default function PersonasPage() {
   const [personas, setPersonas] = useState<SavedSearch[]>([])
   const [editingPersona, setEditingPersona] = useState<SavedSearch | null>(null)
   const [deletingPersonaId, setDeletingPersonaId] = useState<string | null>(null)
-  const [editName, setEditName] = useState('')
-  const [editAlertEnabled, setEditAlertEnabled] = useState(false)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -68,7 +67,7 @@ export default function PersonasPage() {
       const { data, error } = await supabase
         .from('saved_searches')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user!.id)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -84,7 +83,7 @@ export default function PersonasPage() {
           throw error
         }
       } else {
-        setPersonas(data || [])
+        setPersonas(data as SavedSearch[] || [])
       }
     } catch (error: any) {
       console.error('Error loading personas:', error)
@@ -94,43 +93,9 @@ export default function PersonasPage() {
     }
   }
 
-  const handleEdit = (persona: SavedSearch) => {
-    setEditingPersona(persona)
-    setEditName(persona.name)
-    setEditAlertEnabled(persona.alert_enabled)
-  }
-
-  const handleSaveEdit = async () => {
-    if (!editingPersona) return
-
-    try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('saved_searches')
-        .update({
-          name: editName,
-          alert_enabled: editAlertEnabled,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', editingPersona.id)
-
-      if (error) throw error
-
-      toast({
-        title: 'Success',
-        description: 'Persona updated successfully'
-      })
-
-      setEditingPersona(null)
-      loadPersonas()
-    } catch (error: any) {
-      console.error('Error updating persona:', error)
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update persona',
-        variant: 'destructive'
-      })
-    }
+  const handleEditSuccess = () => {
+    setEditingPersona(null)
+    loadPersonas()
   }
 
   const handleDelete = async () => {
@@ -247,12 +212,15 @@ export default function PersonasPage() {
                 Manage your saved search profiles and alerts
               </p>
             </div>
-            <Link href="/search">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
-                Create New
-              </Button>
-            </Link>
+            <PersonaOnboarding
+              trigger={
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Create New
+                </Button>
+              }
+              onSuccess={loadPersonas}
+            />
           </div>
 
       {/* Personas List */}
@@ -270,12 +238,15 @@ export default function PersonasPage() {
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Create customized search profiles with your preferred filters to quickly find properties that match your needs.
             </p>
-            <Link href="/search">
-              <Button size="lg">
-                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
-                Create Your First Persona
-              </Button>
-            </Link>
+            <PersonaOnboarding
+              trigger={
+                <Button size="lg">
+                  <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Create Your First Persona
+                </Button>
+              }
+              onSuccess={loadPersonas}
+            />
           </CardContent>
         </Card>
       ) : (
@@ -319,7 +290,7 @@ export default function PersonasPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleEdit(persona)}
+                      onClick={() => setEditingPersona(persona)}
                       aria-label="Edit persona"
                     >
                       <Edit className="h-4 w-4" aria-hidden="true" />
@@ -354,47 +325,13 @@ export default function PersonasPage() {
         </div>
       )}
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingPersona} onOpenChange={() => setEditingPersona(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Search Persona</DialogTitle>
-            <DialogDescription>
-              Update the name and alert settings for this search persona
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Persona Name</Label>
-              <Input
-                id="name"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="e.g., Family Home in Joburg"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="alert">Enable Alerts</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get notified when new properties match this search
-                </p>
-              </div>
-              <Switch
-                id="alert"
-                checked={editAlertEnabled}
-                onCheckedChange={setEditAlertEnabled}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingPersona(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveEdit}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Edit Persona */}
+      {editingPersona && (
+        <PersonaOnboarding
+          editPersona={editingPersona}
+          onSuccess={handleEditSuccess}
+        />
+      )}
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deletingPersonaId} onOpenChange={() => setDeletingPersonaId(null)}>
