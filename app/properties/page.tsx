@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Filter } from "lucide-react"
+import type { Property } from "@/lib/types"
 
 export default async function PropertiesPage({
   searchParams,
@@ -22,14 +23,15 @@ export default async function PropertiesPage({
   let query = supabase.from("properties").select("*").eq("status", "active").order("created_at", { ascending: false })
 
   // Apply filters based on search params
-  if (params.type) {
+  if (params.type && typeof params.type === 'string') {
     query = query.eq("listing_type", params.type)
   }
-  if (params.city) {
+  if (params.city && typeof params.city === 'string') {
     query = query.ilike("city", `%${params.city}%`)
   }
 
-  const { data: properties, error } = await query
+  const { data, error } = await query
+  const properties = (data || []) as Property[]
 
   return (
     <div className="flex min-h-screen flex-col">

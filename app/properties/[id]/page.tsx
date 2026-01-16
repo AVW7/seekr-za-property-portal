@@ -6,12 +6,16 @@ import { PropertyGallery } from "@/components/property-gallery"
 import { PropertyMap } from "@/components/property-map"
 import { PropertyContact } from "@/components/property-contact"
 import { PropertyFeatures } from "@/components/property-features"
+import { PropertyActions } from "@/components/property-actions"
+import { PropertyStats } from "@/components/property-stats"
+import { SimilarProperties } from "@/components/similar-properties"
+import { ViewingScheduler } from "@/components/viewing-scheduler"
 import { AgentCard } from "@/components/agent-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle2, MapPin, Bed, Bath, Car, Maximize, DollarSign, Heart, Share2 } from "lucide-react"
+import { CheckCircle2, MapPin, Bed, Bath, Car, Maximize, DollarSign, Calculator } from "lucide-react"
 import { notFound } from "next/navigation"
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -80,23 +84,22 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                   <Badge variant="outline">{property.property_type}</Badge>
                 </div>
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-balance">{property.title}</h1>
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-muted-foreground mb-2">
                   <MapPin className="h-4 w-4 flex-shrink-0" />
                   <span className="text-sm md:text-base">
                     {property.address}, {property.suburb}, {property.city}
                   </span>
                 </div>
+                <PropertyStats propertyId={property.id} views={property.views || 0} listDate={property.list_date} />
               </div>
               <div className="flex flex-col items-start md:items-end gap-3">
                 <p className="text-3xl md:text-4xl font-bold text-primary">{formatPrice(property.price)}</p>
-                <div className="flex gap-2 w-full md:w-auto">
-                  <Button variant="outline" size="icon" className="flex-1 md:flex-none bg-transparent">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="flex-1 md:flex-none bg-transparent">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <PropertyActions
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  propertyPrice={property.price}
+                  className="w-full md:w-auto"
+                />
               </div>
             </div>
 
@@ -189,6 +192,49 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 </TabsContent>
               </Tabs>
 
+              {/* Mortgage Calculator CTA */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calculator className="h-5 w-5 text-primary" />
+                        <h3 className="font-semibold text-lg">Can You Afford This Property?</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Use our SA-specific calculator to see your affordability, monthly repayments, and
+                        transfer costs including transfer duty and legal fees.
+                      </p>
+                    </div>
+                    <Button asChild size="lg" className="w-full md:w-auto">
+                      <a href={`/calculator?price=${property.price}`}>Calculate Affordability</a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Neighborhood Insights */}
+              {property.suburb && (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg mb-2">Explore {property.suburb}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          View detailed neighborhood reports including demographics, amenities, schools,
+                          safety ratings, and local market trends.
+                        </p>
+                      </div>
+                      <Button variant="outline" asChild size="lg" className="w-full md:w-auto">
+                        <a href={`/neighborhoods/${property.suburb.toLowerCase().replace(/\s+/g, '-')}`}>
+                          View Neighborhood Report
+                        </a>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Map Section - Responsive */}
               <Card>
                 <CardContent className="pt-6">
@@ -212,10 +258,29 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 {/* Contact Form */}
                 <PropertyContact property={property} agent={agent} />
 
+                {/* Viewing Scheduler */}
+                <ViewingScheduler
+                  propertyId={property.id}
+                  propertyTitle={property.title}
+                  agentId={property.agent_id}
+                />
+
                 {/* Agent Card */}
                 {agent && <AgentCard agent={agent} />}
               </div>
             </div>
+          </div>
+
+          {/* Similar Properties Section */}
+          <div className="mt-12">
+            <SimilarProperties
+              currentPropertyId={property.id}
+              suburb={property.suburb}
+              city={property.city}
+              propertyType={property.property_type}
+              price={property.price}
+              listingType={property.listing_type}
+            />
           </div>
         </div>
       </main>

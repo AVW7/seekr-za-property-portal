@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircle2, X, Zap, Wifi, Shield, PawPrint, FileText, Maximize, Square } from "lucide-react"
+import { CheckCircle2, X, Zap, Wifi, Shield, PawPrint, FileText, Maximize, Square, Waves, Trees, Wind, Lock } from "lucide-react"
 import type { Property } from "@/lib/types"
 
 interface PropertyFeaturesProps {
@@ -66,6 +66,67 @@ export function PropertyFeatures({ property }: PropertyFeaturesProps) {
                 <span className="text-sm">Pet Friendly</span>
               </div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Security & Amenities */}
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="font-semibold text-lg mb-4">Security & Amenities</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {property.features?.security_24h !== undefined && (
+              <div className="flex items-center gap-3">
+                {property.features.security_24h ? (
+                  <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                ) : (
+                  <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                )}
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">24h Security</span>
+                </div>
+              </div>
+            )}
+            {property.features?.pool !== undefined && (
+              <div className="flex items-center gap-3">
+                {property.features.pool ? (
+                  <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                ) : (
+                  <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                )}
+                <div className="flex items-center gap-2">
+                  <Waves className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Swimming Pool</span>
+                </div>
+              </div>
+            )}
+            {property.features?.garden !== undefined && (
+              <div className="flex items-center gap-3">
+                {property.features.garden ? (
+                  <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                ) : (
+                  <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                )}
+                <div className="flex items-center gap-2">
+                  <Trees className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Garden</span>
+                </div>
+              </div>
+            )}
+            {property.features?.air_conditioning !== undefined && (
+              <div className="flex items-center gap-3">
+                {property.features.air_conditioning ? (
+                  <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                ) : (
+                  <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                )}
+                <div className="flex items-center gap-2">
+                  <Wind className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Air Conditioning</span>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

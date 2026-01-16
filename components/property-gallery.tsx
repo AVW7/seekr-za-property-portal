@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 
@@ -86,6 +86,7 @@ export function PropertyGallery({ images, title }: PropertyGalleryProps) {
       {/* Fullscreen Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-7xl h-[90vh] p-0">
+          <DialogTitle className="sr-only">{title} Gallery</DialogTitle>
           <div className="relative h-full w-full bg-black">
             <Image
               src={images[selectedImage] || "/placeholder.svg"}

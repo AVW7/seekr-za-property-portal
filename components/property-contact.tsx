@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { MessageSquare, Phone, Mail } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import type { Property, Agent } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -25,6 +26,7 @@ export function PropertyContact({ property, agent }: PropertyContactProps) {
     email: "",
     phone: "",
     message: `Hi, I'm interested in ${property.title}. Please contact me with more information.`,
+    consent: false,
   })
   const { toast } = useToast()
 
@@ -39,6 +41,16 @@ export function PropertyContact({ property, agent }: PropertyContactProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!formData.consent) {
+      toast({
+        title: "Consent Required",
+        description: "Please agree to the privacy policy to continue",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -66,6 +78,7 @@ export function PropertyContact({ property, agent }: PropertyContactProps) {
         email: "",
         phone: "",
         message: `Hi, I'm interested in ${property.title}. Please contact me with more information.`,
+        consent: false,
       })
     } catch (error) {
       console.error("[v0] Error submitting inquiry:", error)
@@ -133,7 +146,24 @@ export function PropertyContact({ property, agent }: PropertyContactProps) {
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <div className="flex items-start gap-2 pt-2">
+            <Checkbox
+              id="consent"
+              checked={formData.consent}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, consent: checked === true })
+              }
+            />
+            <label htmlFor="consent" className="text-xs text-muted-foreground cursor-pointer leading-tight">
+              I agree to SeekrZA's{" "}
+              <a href="/privacy" className="underline hover:text-foreground" target="_blank">
+                Privacy Policy
+              </a>{" "}
+              and consent to my information being processed in accordance with POPIA for the
+              purpose of this property inquiry.
+            </label>
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting || !formData.consent}>
             <Mail className="mr-2 h-4 w-4" />
             {isSubmitting ? "Sending..." : "Send Inquiry"}
           </Button>

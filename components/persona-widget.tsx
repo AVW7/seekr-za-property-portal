@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Sparkles, Search as SearchIcon, Bell, BellOff, Loader2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ import { createClient } from "@/lib/supabase/client"
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false)
 
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const media = window.matchMedia(query)
       setMatches(media.matches)
@@ -33,7 +33,7 @@ function useMediaQuery(query: string) {
       
       return () => media.removeEventListener('change', listener)
     }
-  })
+  }, [query])
 
   return matches
 }
