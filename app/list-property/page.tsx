@@ -28,7 +28,7 @@ const provinces = [
   "North West",
 ]
 
-const propertyTypes = ["house", "apartment", "townhouse", "land", "farm", "commercial"]
+const propertyTypes = ["house", "apartment_flat", "townhouse", "land", "commercial", "other"]
 
 export default function ListPropertyPage() {
   const router = useRouter()
@@ -43,13 +43,17 @@ export default function ListPropertyPage() {
     title: "",
     description: "",
     price: "",
+    price_period: "total",
     property_type: "house",
-    listing_type: "sale",
+    listing_type: "for_sale",
+    status: "active",
+    agency_id: "",
     bedrooms: "3",
     bathrooms: "2",
-    parking_spaces: "1",
-    floor_size: "",
-    erf_size: "",
+    garages: "0",
+    parking_bays: "1",
+    floor_size_sqm: "",
+    land_size_sqm: "",
     monthly_levy: "0",
     monthly_rates: "0",
     sectional_title: false,
@@ -58,16 +62,30 @@ export default function ListPropertyPage() {
     has_inverter: false,
     has_fiber: false,
     pet_friendly: false,
+    furnished: false,
+    garden: false,
+    pool: false,
+    security: false,
     in_estate: false,
     estate_name: "",
-    address: "",
+    street_address: "",
+    complex_or_building_name: "",
     suburb: "",
     city: "",
     province: "Western Cape",
+    country: "South Africa",
     postal_code: "",
     latitude: "",
     longitude: "",
-    images: [] as string[],
+    zoning: "",
+    available_from: "",
+    image_urls: [] as string[],
+    video_urls: [] as string[],
+    portal_listing_id: "",
+    portal_name: "",
+    portal_urls: "",
+    tenant_screening: "",
+    area_stats: "",
   })
 
   useEffect(() => {
@@ -101,6 +119,16 @@ export default function ListPropertyPage() {
     try {
       const supabase = createClient()
 
+      const parseJsonField = (value: string, label: string) => {
+        if (!value) return null
+        try {
+          return JSON.parse(value)
+        } catch {
+          setError(`${label} must be valid JSON`)
+          throw new Error(`${label} must be valid JSON`)
+        }
+      }
+
       // Get agent ID from user
       const agentId = user?.id
 
@@ -108,50 +136,72 @@ export default function ListPropertyPage() {
         throw new Error("You must be logged in as an agent to list a property")
       }
 
-      // Prepare property data
       const propertyData = {
         agent_id: agentId,
+        agency_id: formData.agency_id || null,
         title: formData.title,
         description: formData.description,
         price: Number.parseFloat(formData.price),
-        property_type: formData.property_type,
+        price_currency: "ZAR",
+        price_period: formData.price_period,
         listing_type: formData.listing_type,
-        bedrooms: Number.parseInt(formData.bedrooms),
-        bathrooms: Number.parseFloat(formData.bathrooms),
-        parking_spaces: Number.parseInt(formData.parking_spaces),
-        floor_size: Number.parseFloat(formData.floor_size) || 0,
-        erf_size: Number.parseFloat(formData.erf_size) || 0,
-        monthly_levy: Number.parseFloat(formData.monthly_levy) || 0,
-        monthly_rates: Number.parseFloat(formData.monthly_rates) || 0,
-        sectional_title: formData.sectional_title,
-        freehold: formData.freehold,
-        has_solar: formData.has_solar,
-        has_inverter: formData.has_inverter,
-        has_fiber: formData.has_fiber,
-        pet_friendly: formData.pet_friendly,
-        in_estate: formData.in_estate,
-        estate_name: formData.estate_name || "",
-        address: formData.address,
+        property_type: formData.property_type,
+        status: formData.status,
+        available_from: formData.available_from || null,
+        street_address: formData.street_address,
+        complex_or_building_name: formData.complex_or_building_name || null,
         suburb: formData.suburb,
         city: formData.city,
         province: formData.province,
+        country: formData.country,
         postal_code: formData.postal_code,
         latitude: Number.parseFloat(formData.latitude) || 0,
         longitude: Number.parseFloat(formData.longitude) || 0,
-        images:
-          formData.images.length > 0
-            ? formData.images
+        bedrooms: Number.parseInt(formData.bedrooms),
+        bathrooms: Number.parseInt(formData.bathrooms),
+        garages: Number.parseInt(formData.garages),
+        parking_bays: Number.parseInt(formData.parking_bays),
+        floor_size_sqm: Number.parseFloat(formData.floor_size_sqm) || null,
+        land_size_sqm: Number.parseFloat(formData.land_size_sqm) || null,
+        zoning: formData.zoning || null,
+        furnished: formData.furnished,
+        monthly_levy: Number.parseFloat(formData.monthly_levy) || null,
+        monthly_rates: Number.parseFloat(formData.monthly_rates) || null,
+        features: {
+          pet_friendly: formData.pet_friendly,
+          solar: formData.has_solar,
+          security: formData.security,
+          garden: formData.garden,
+          pool: formData.pool,
+          furnished: formData.furnished,
+          sectional_title: formData.sectional_title,
+          freehold: formData.freehold,
+          in_estate: formData.in_estate,
+          estate_name: formData.estate_name || "",
+          inverter: formData.has_inverter,
+          fiber: formData.has_fiber,
+        },
+        image_urls:
+          formData.image_urls.length > 0
+            ? formData.image_urls
             : ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"],
-        verified: false,
-        status: "active",
+        cover_image_url:
+          formData.image_urls.length > 0
+            ? formData.image_urls[0]
+            : "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800",
+        video_urls: formData.video_urls,
+        portal_listing_id: formData.portal_listing_id || null,
+        portal_name: formData.portal_name || null,
+        portal_urls: parseJsonField(formData.portal_urls, "Portal URLs"),
+        tenant_screening: parseJsonField(formData.tenant_screening, "Tenant Screening"),
+        area_stats: parseJsonField(formData.area_stats, "Area Stats"),
       }
 
-      const { data, error: insertError } = await supabase.from("properties").insert([propertyData]).select()
+      const { error: insertError } = await supabase.from("properties").insert([propertyData]).select()
 
       if (insertError) throw insertError
 
       setSuccess(true)
-      // Reset form after successful submission
       setTimeout(() => {
         router.push("/properties")
       }, 2000)
@@ -161,7 +211,6 @@ export default function ListPropertyPage() {
       setLoading(false)
     }
   }
-
   if (checkingAuth) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
@@ -297,7 +346,7 @@ export default function ListPropertyPage() {
                     <SelectContent>
                       {propertyTypes.map((type) => (
                         <SelectItem key={type} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                          {type === "apartment_flat" ? "Apartment/Flat" : type.charAt(0).toUpperCase() + type.slice(1)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -315,24 +364,88 @@ export default function ListPropertyPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sale">For Sale</SelectItem>
-                      <SelectItem value="rent">For Rent</SelectItem>
+                      <SelectItem value="for_sale">For Sale</SelectItem>
+                      <SelectItem value="to_rent">For Rent</SelectItem>
+                      <SelectItem value="sold">Sold</SelectItem>
+                      <SelectItem value="leased">Leased</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status *</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleInputChange("status", value)}
+                    disabled={loading}
+                  >
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="agency_id">Agency ID</Label>
+                  <Input
+                    id="agency_id"
+                    placeholder="Agency UUID (optional)"
+                    value={formData.agency_id}
+                    onChange={(e) => handleInputChange("agency_id", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="price">{formData.listing_type === "sale" ? "Price (R) *" : "Monthly Rent (R) *"}</Label>
+                <Label htmlFor="price">{formData.listing_type === "for_sale" ? "Price (R) *" : "Monthly Rent (R) *"}</Label>
                 <Input
                   id="price"
                   type="number"
-                  placeholder={formData.listing_type === "sale" ? "2950000" : "15000"}
+                  placeholder={formData.listing_type === "for_sale" ? "2950000" : "15000"}
                   value={formData.price}
                   onChange={(e) => handleInputChange("price", e.target.value)}
                   required
                   disabled={loading}
                 />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="price_period">Price Period</Label>
+                  <Select
+                    value={formData.price_period}
+                    onValueChange={(value) => handleInputChange("price_period", value)}
+                    disabled={loading}
+                  >
+                    <SelectTrigger id="price_period">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="total">Total</SelectItem>
+                      <SelectItem value="per_month">Per Month</SelectItem>
+                      <SelectItem value="per_week">Per Week</SelectItem>
+                      <SelectItem value="per_day">Per Day</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="available_from">Available From</Label>
+                  <Input
+                    id="available_from"
+                    type="date"
+                    value={formData.available_from}
+                    onChange={(e) => handleInputChange("available_from", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -362,7 +475,7 @@ export default function ListPropertyPage() {
                   <Input
                     id="bathrooms"
                     type="number"
-                    step="0.5"
+                    step="1"
                     value={formData.bathrooms}
                     onChange={(e) => handleInputChange("bathrooms", e.target.value)}
                     required
@@ -371,13 +484,24 @@ export default function ListPropertyPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="parking_spaces">Parking Spaces *</Label>
+                  <Label htmlFor="parking_bays">Parking Bays *</Label>
                   <Input
-                    id="parking_spaces"
+                    id="parking_bays"
                     type="number"
-                    value={formData.parking_spaces}
-                    onChange={(e) => handleInputChange("parking_spaces", e.target.value)}
+                    value={formData.parking_bays}
+                    onChange={(e) => handleInputChange("parking_bays", e.target.value)}
                     required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="garages">Garages</Label>
+                  <Input
+                    id="garages"
+                    type="number"
+                    value={formData.garages}
+                    onChange={(e) => handleInputChange("garages", e.target.value)}
                     disabled={loading}
                   />
                 </div>
@@ -385,25 +509,25 @@ export default function ListPropertyPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="floor_size">Floor Size (m²)</Label>
+                  <Label htmlFor="floor_size_sqm">Floor Size (m²)</Label>
                   <Input
-                    id="floor_size"
+                    id="floor_size_sqm"
                     type="number"
                     placeholder="185"
-                    value={formData.floor_size}
-                    onChange={(e) => handleInputChange("floor_size", e.target.value)}
+                    value={formData.floor_size_sqm}
+                    onChange={(e) => handleInputChange("floor_size_sqm", e.target.value)}
                     disabled={loading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="erf_size">Erf Size (m²)</Label>
+                  <Label htmlFor="land_size_sqm">Land Size (m²)</Label>
                   <Input
-                    id="erf_size"
+                    id="land_size_sqm"
                     type="number"
                     placeholder="650"
-                    value={formData.erf_size}
-                    onChange={(e) => handleInputChange("erf_size", e.target.value)}
+                    value={formData.land_size_sqm}
+                    onChange={(e) => handleInputChange("land_size_sqm", e.target.value)}
                     disabled={loading}
                   />
                 </div>
@@ -430,6 +554,19 @@ export default function ListPropertyPage() {
                     placeholder="1850"
                     value={formData.monthly_rates}
                     onChange={(e) => handleInputChange("monthly_rates", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="zoning">Zoning</Label>
+                  <Input
+                    id="zoning"
+                    placeholder="Residential"
+                    value={formData.zoning}
+                    onChange={(e) => handleInputChange("zoning", e.target.value)}
                     disabled={loading}
                   />
                 </div>
@@ -490,6 +627,42 @@ export default function ListPropertyPage() {
                   />
                   <Label htmlFor="pet_friendly" className="cursor-pointer">
                     Pet Friendly
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="garden"
+                    checked={formData.garden}
+                    onCheckedChange={(checked) => handleInputChange("garden", checked)}
+                    disabled={loading}
+                  />
+                  <Label htmlFor="garden" className="cursor-pointer">
+                    Garden
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="pool"
+                    checked={formData.pool}
+                    onCheckedChange={(checked) => handleInputChange("pool", checked)}
+                    disabled={loading}
+                  />
+                  <Label htmlFor="pool" className="cursor-pointer">
+                    Pool
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="security"
+                    checked={formData.security}
+                    onCheckedChange={(checked) => handleInputChange("security", checked)}
+                    disabled={loading}
+                  />
+                  <Label htmlFor="security" className="cursor-pointer">
+                    Security
                   </Label>
                 </div>
 
@@ -559,13 +732,24 @@ export default function ListPropertyPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="address">Street Address *</Label>
+                <Label htmlFor="street_address">Street Address *</Label>
                 <Input
-                  id="address"
+                  id="street_address"
                   placeholder="15 Mountain View Drive"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  value={formData.street_address}
+                  onChange={(e) => handleInputChange("street_address", e.target.value)}
                   required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="complex_or_building_name">Complex/Building Name</Label>
+                <Input
+                  id="complex_or_building_name"
+                  placeholder="e.g., Silvermist Estate"
+                  value={formData.complex_or_building_name}
+                  onChange={(e) => handleInputChange("complex_or_building_name", e.target.value)}
                   disabled={loading}
                 />
               </div>
@@ -632,6 +816,19 @@ export default function ListPropertyPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Input
+                    id="country"
+                    placeholder="South Africa"
+                    value={formData.country}
+                    onChange={(e) => handleInputChange("country", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="latitude">Latitude</Label>
                   <Input
                     id="latitude"
@@ -679,7 +876,7 @@ export default function ListPropertyPage() {
                     onClick={() => {
                       const input = document.getElementById("image_url") as HTMLInputElement
                       if (input.value) {
-                        handleInputChange("images", [...formData.images, input.value])
+                        handleInputChange("image_urls", [...formData.image_urls, input.value])
                         input.value = ""
                       }
                     }}
@@ -690,11 +887,11 @@ export default function ListPropertyPage() {
                   </Button>
                 </div>
               </div>
-              {formData.images.length > 0 && (
+              {formData.image_urls.length > 0 && (
                 <div className="space-y-2">
-                  <Label>Added Images ({formData.images.length})</Label>
+                  <Label>Added Images ({formData.image_urls.length})</Label>
                   <div className="space-y-1">
-                    {formData.images.map((url, index) => (
+                    {formData.image_urls.map((url, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm">
                         <span className="flex-1 truncate text-muted-foreground">{url}</span>
                         <Button
@@ -703,8 +900,8 @@ export default function ListPropertyPage() {
                           size="sm"
                           onClick={() => {
                             handleInputChange(
-                              "images",
-                              formData.images.filter((_, i) => i !== index),
+                              "image_urls",
+                              formData.image_urls.filter((_, i) => i !== index),
                             )
                           }}
                           disabled={loading}
@@ -716,6 +913,130 @@ export default function ListPropertyPage() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Videos */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Property Videos</CardTitle>
+              <CardDescription>Add video URLs (optional)</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="video_url">Video URL</Label>
+                <div className="flex gap-2">
+                  <Input id="video_url" placeholder="https://example.com/video.mp4" disabled={loading} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const input = document.getElementById("video_url") as HTMLInputElement
+                      if (input.value) {
+                        handleInputChange("video_urls", [...formData.video_urls, input.value])
+                        input.value = ""
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </div>
+              {formData.video_urls.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Added Videos ({formData.video_urls.length})</Label>
+                  <div className="space-y-1">
+                    {formData.video_urls.map((url, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
+                        <span className="flex-1 truncate text-muted-foreground">{url}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            handleInputChange(
+                              "video_urls",
+                              formData.video_urls.filter((_, i) => i !== index),
+                            )
+                          }}
+                          disabled={loading}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Portal & Analytics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Portal & Analytics</CardTitle>
+              <CardDescription>Optional portal metadata and analytics in JSON format.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="portal_listing_id">Portal Listing ID</Label>
+                  <Input
+                    id="portal_listing_id"
+                    placeholder="Portal listing id"
+                    value={formData.portal_listing_id}
+                    onChange={(e) => handleInputChange("portal_listing_id", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="portal_name">Portal Name</Label>
+                  <Input
+                    id="portal_name"
+                    placeholder="e.g. ExamplePortal"
+                    value={formData.portal_name}
+                    onChange={(e) => handleInputChange("portal_name", e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="portal_urls">Portal URLs (JSON)</Label>
+                <Textarea
+                  id="portal_urls"
+                  placeholder='{"example": "https://..."}'
+                  value={formData.portal_urls}
+                  onChange={(e) => handleInputChange("portal_urls", e.target.value)}
+                  rows={4}
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tenant_screening">Tenant Screening (JSON)</Label>
+                <Textarea
+                  id="tenant_screening"
+                  placeholder='{"score": 720}'
+                  value={formData.tenant_screening}
+                  onChange={(e) => handleInputChange("tenant_screening", e.target.value)}
+                  rows={4}
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="area_stats">Area Stats (JSON)</Label>
+                <Textarea
+                  id="area_stats"
+                  placeholder='{"median_price": 2500000}'
+                  value={formData.area_stats}
+                  onChange={(e) => handleInputChange("area_stats", e.target.value)}
+                  rows={4}
+                  disabled={loading}
+                />
+              </div>
             </CardContent>
           </Card>
 

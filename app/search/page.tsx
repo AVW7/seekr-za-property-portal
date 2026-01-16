@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createClient } from "@/lib/supabase/server"
 import { MobilePropertyFilters } from "@/components/mobile-property-filters"
 import { SearchWithPersona } from "@/components/search-with-persona"
-import { Brain, Sparkles, Save, Bell, SlidersHorizontal, ChevronDown, UserPlus } from "lucide-react"
+import { Brain, Sparkles, Save, Bell, SlidersHorizontal, ChevronDown, UserPlus, Map } from "lucide-react"
 import Link from "next/link"
 
 export const metadata = {
@@ -208,6 +208,13 @@ export default async function SearchPage({
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <label htmlFor="toggle-map" className="cursor-pointer inline-flex items-center">
+                    <Map className="mr-2 h-4 w-4" />
+                    <span className="peer-checked:hidden">Hide Map</span>
+                    <span className="hidden peer-checked:inline">Show Map</span>
+                  </label>
+                </Button>
                 <Button variant="outline" size="sm">
                   <Save className="mr-2 h-4 w-4" />
                   Save Persona
@@ -222,8 +229,9 @@ export default async function SearchPage({
         </div>
 
         <div className="flex-1 flex overflow-hidden">
+             <input id="toggle-map" type="checkbox" className="peer sr-only" />
              {/* Left Panel: Property Results */}
-             <div className="w-full lg:w-[500px] xl:w-[600px] flex flex-col border-r bg-background overflow-y-auto">
+             <div className="w-full lg:w-[500px] xl:w-[600px] flex flex-col border-r bg-background overflow-y-auto peer-checked:lg:w-full peer-checked:xl:w-full">
                 {/* Active Persona Banner */}
                 <SearchWithPersona />
                 
@@ -283,7 +291,7 @@ export default async function SearchPage({
                 </div>
 
                 {/* Property List */}
-                <div className="p-4 space-y-4">
+                <div className="p-4 flex flex-col gap-4 peer-checked:lg:grid peer-checked:lg:grid-cols-2 peer-checked:2xl:grid-cols-3 peer-checked:lg:gap-6">
                         {properties && properties.length > 0 ? (
                             properties.map((property, index) => (
                               <div key={property.id} className="relative">
@@ -333,7 +341,7 @@ export default async function SearchPage({
              </div>
 
              {/* Right Panel: Map */}
-             <div className="hidden lg:block flex-1 relative bg-slate-100">
+             <div className="hidden lg:block flex-1 relative bg-slate-100 peer-checked:lg:hidden">
                 <SearchMap />
                 
                 {/* Floating Map Controls */}

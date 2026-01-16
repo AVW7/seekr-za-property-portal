@@ -35,7 +35,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
   // Increment views
   await supabase
     .from("properties")
-    .update({ views: (property.views || 0) + 1 })
+    .update({ views_count: (property.views_count || 0) + 1 })
     .eq("id", id)
 
   const formatPrice = (price: number) => {
@@ -61,7 +61,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
       <main className="flex-1">
         {/* Mobile-first Gallery - Full width on mobile */}
         <div className="w-full">
-          <PropertyGallery images={property.image_urls || []} title={property.title} />
+          <PropertyGallery
+            images={property.image_urls?.length ? property.image_urls : property.cover_image_url ? [property.cover_image_url] : []}
+            title={property.title}
+          />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
@@ -74,23 +77,18 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  {property.verified && (
-                    <Badge className="bg-success text-success-foreground">
-                      <CheckCircle2 className="mr-1 h-3 w-3" />
-                      Verified Listing
-                    </Badge>
-                  )}
-                  <Badge variant="outline">{property.listing_type}</Badge>
-                  <Badge variant="outline">{property.property_type}</Badge>
+                  <Badge variant="outline">{property.listing_type?.replace(/_/g, " ")}</Badge>
+                  <Badge variant="outline">{property.property_type?.replace(/_/g, " ")}</Badge>
+                  {property.status && <Badge variant="secondary">{property.status}</Badge>}
                 </div>
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-balance">{property.title}</h1>
                 <div className="flex items-center gap-2 text-muted-foreground mb-2">
                   <MapPin className="h-4 w-4 flex-shrink-0" />
                   <span className="text-sm md:text-base">
-                    {property.address}, {property.suburb}, {property.city}
+                    {property.street_address ? `${property.street_address}, ` : ""}{property.suburb}, {property.city}
                   </span>
                 </div>
-                <PropertyStats propertyId={property.id} views={property.views || 0} listDate={property.list_date} />
+                <PropertyStats propertyId={property.id} views={property.views_count || 0} listDate={property.list_date} />
               </div>
               <div className="flex flex-col items-start md:items-end gap-3">
                 <p className="text-3xl md:text-4xl font-bold text-primary">{formatPrice(property.price)}</p>
@@ -122,14 +120,14 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               <Card>
                 <CardContent className="pt-4 pb-3 text-center">
                   <Car className="h-6 w-6 mx-auto mb-1 text-primary" />
-                  <p className="text-xl md:text-2xl font-bold">{property.parking_spaces}</p>
+                  <p className="text-xl md:text-2xl font-bold">{property.parking_bays ?? 0}</p>
                   <p className="text-xs md:text-sm text-muted-foreground">Parking</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4 pb-3 text-center">
                   <Maximize className="h-6 w-6 mx-auto mb-1 text-primary" />
-                  <p className="text-xl md:text-2xl font-bold">{property.floor_size}</p>
+                  <p className="text-xl md:text-2xl font-bold">{property.floor_size_sqm ?? 0}</p>
                   <p className="text-xs md:text-sm text-muted-foreground">m² Floor</p>
                 </CardContent>
               </Card>
@@ -168,16 +166,22 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     <CardContent className="pt-6 space-y-4">
                       <h2 className="text-xl md:text-2xl font-bold mb-4">Monthly Costs</h2>
                       <div className="space-y-3">
-                        {property.monthly_levy > 0 && (
+                        {property.monthly_levy && property.monthly_levy > 0 && (
                           <div className="flex justify-between items-center py-2 border-b">
                             <span className="text-muted-foreground">Monthly Levy</span>
                             <span className="font-semibold">{formatCurrency(property.monthly_levy)}</span>
                           </div>
                         )}
-                        {property.monthly_rates > 0 && (
+                        {property.monthly_rates && property.monthly_rates > 0 && (
                           <div className="flex justify-between items-center py-2 border-b">
                             <span className="text-muted-foreground">Municipal Rates & Taxes</span>
                             <span className="font-semibold">{formatCurrency(property.monthly_rates)}</span>
+                          </div>
+                        )}
+                        {(!property.monthly_levy || property.monthly_levy === 0) && (!property.monthly_rates || property.monthly_rates === 0) && (
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Costs</span>
+                            <span className="font-semibold">Contact agent for levies & rates</span>
                           </div>
                         )}
                         <div className="bg-muted/50 p-4 rounded-lg mt-4">

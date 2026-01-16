@@ -251,6 +251,8 @@ export type Database = {
           list_date: string | null
           listing_type: string
           longitude: number | null
+          monthly_levy: number | null
+          monthly_rates: number | null
           parking_bays: number | null
           portal_listing_id: string | null
           portal_name: string | null
@@ -268,6 +270,7 @@ export type Database = {
           title: string
           updated_at: string | null
           video_urls: string[] | null
+          building_plans_urls: string[] | null
           views_count: number | null
           zoning: string | null
         }
@@ -298,6 +301,8 @@ export type Database = {
           list_date?: string | null
           listing_type: string
           longitude?: number | null
+          monthly_levy?: number | null
+          monthly_rates?: number | null
           parking_bays?: number | null
           portal_listing_id?: string | null
           portal_name?: string | null
@@ -315,6 +320,7 @@ export type Database = {
           title: string
           updated_at?: string | null
           video_urls?: string[] | null
+          building_plans_urls?: string[] | null
           views_count?: number | null
           zoning?: string | null
         }
@@ -345,6 +351,8 @@ export type Database = {
           list_date?: string | null
           listing_type?: string
           longitude?: number | null
+          monthly_levy?: number | null
+          monthly_rates?: number | null
           parking_bays?: number | null
           portal_listing_id?: string | null
           portal_name?: string | null
@@ -362,6 +370,7 @@ export type Database = {
           title?: string
           updated_at?: string | null
           video_urls?: string[] | null
+          building_plans_urls?: string[] | null
           views_count?: number | null
           zoning?: string | null
         }
