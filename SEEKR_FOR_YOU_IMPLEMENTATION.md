@@ -184,23 +184,26 @@ Allows non-authenticated users to test persona search functionality without crea
 - `city` - City name (cape-town, johannesburg, etc.)
 
 **Listing Details:**
-- `listingType` - sale or rent
-- `propertyType` - house, apartment, townhouse, land, commercial
+- `listingType` - for_sale or to_rent
+- `propertyType` - house, apartment_flat, townhouse, commercial, land, other
 
 **Price Range:**
-- `minPrice` - Minimum price in Rand
-- `maxPrice` - Maximum price in Rand
+- `priceMin` - Minimum price in Rand
+- `priceMax` - Maximum price in Rand
 
 **Property Details:**
-- `minBeds`, `maxBeds` - Bedroom range
-- `minBaths`, `maxBaths` - Bathroom range
-- `minSize`, `maxSize` - Size in m²
+- `bedrooms` - Minimum bedrooms
+- `bathrooms` - Minimum bathrooms
+- `floorSizeMin` - Minimum floor size in m²
+- `floorSizeMax` - Maximum floor size in m²
 
 **Features (boolean):**
-- `pool`, `garden`, `garage` - Property amenities
+- `hasPool` - Has swimming pool
+- `hasGarden` - Has garden
+- `garages` - Number of garages
 - `petFriendly` - Pet-friendly property
-- `solar` - Solar power (load-shedding ready)
-- `fibre` - Fibre internet connectivity
+- `hasSolar` - Solar power (load-shedding ready)
+- `hasFibre` - Fibre internet connectivity
 - `furnished` - Furnished property
 
 ### User Flow

@@ -198,7 +198,9 @@ export function PersonaOnboarding({ trigger, onSuccess, editPersona }: PersonaOn
       setPersonaName(editPersona.name)
       setAlertEnabled(editPersona.alert_enabled ?? false)
       
-      if (params.listingType) setListingType(params.listingType)
+      if (params.listingType && (params.listingType === "for_sale" || params.listingType === "to_rent")) {
+        setListingType(params.listingType)
+      }
       if (params.propertyType) setPropertyType(params.propertyType)
       if (params.province) setProvince(params.province)
       if (params.city) setCity(params.city)

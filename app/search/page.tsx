@@ -50,17 +50,17 @@ export default async function SearchPage({
   }
 
   // Location Filters
-  if (params.province) {
+  if (params.province && typeof params.province === 'string') {
     query = query.eq("province", params.province)
   }
-  if (params.city) {
+  if (params.city && typeof params.city === 'string') {
     query = query.eq("city", params.city)
   }
 
   // Property Type
-  if (params.propertyType) {
+  if (params.propertyType && typeof params.propertyType === 'string') {
     query = query.eq("property_type", params.propertyType)
-  } else if (params.type) {
+  } else if (params.type && typeof params.type === 'string') {
     // Legacy support
     if (params.type === 'development') {
       query = query.ilike('description', '%development%')
@@ -70,70 +70,56 @@ export default async function SearchPage({
   }
 
   // Price Range
-  if (params.minPrice) {
-    const minPrice = parseInt(params.minPrice as string)
-    if (!isNaN(minPrice)) {
-      query = query.gte("price", minPrice)
+  if (params.priceMin) {
+    const priceMin = parseInt(params.priceMin as string)
+    if (!isNaN(priceMin)) {
+      query = query.gte("price", priceMin)
     }
   }
-  if (params.maxPrice) {
-    const maxPrice = parseInt(params.maxPrice as string)
-    if (!isNaN(maxPrice)) {
-      query = query.lte("price", maxPrice)
-    }
-  }
-
-  // Bedrooms
-  if (params.minBeds) {
-    const minBeds = parseInt(params.minBeds as string)
-    if (!isNaN(minBeds)) {
-      query = query.gte("beds", minBeds)
-    }
-  }
-  if (params.maxBeds) {
-    const maxBeds = parseInt(params.maxBeds as string)
-    if (!isNaN(maxBeds)) {
-      query = query.lte("beds", maxBeds)
+  if (params.priceMax) {
+    const priceMax = parseInt(params.priceMax as string)
+    if (!isNaN(priceMax)) {
+      query = query.lte("price", priceMax)
     }
   }
 
-  // Bathrooms
-  if (params.minBaths) {
-    const minBaths = parseInt(params.minBaths as string)
-    if (!isNaN(minBaths)) {
-      query = query.gte("baths", minBaths)
+  // Bedrooms/Bathrooms
+  if (params.bedrooms) {
+    const bedrooms = parseInt(params.bedrooms as string)
+    if (!isNaN(bedrooms)) {
+      query = query.gte("bedrooms", bedrooms)
     }
   }
-  if (params.maxBaths) {
-    const maxBaths = parseInt(params.maxBaths as string)
-    if (!isNaN(maxBaths)) {
-      query = query.lte("baths", maxBaths)
+  if (params.bathrooms) {
+    const bathrooms = parseInt(params.bathrooms as string)
+    if (!isNaN(bathrooms)) {
+      query = query.gte("bathrooms", bathrooms)
     }
   }
 
   // Size/Area
-  if (params.minSize) {
-    const minSize = parseInt(params.minSize as string)
-    if (!isNaN(minSize)) {
-      query = query.gte("size_sqm", minSize)
+  if (params.floorSizeMin) {
+    const floorSizeMin = parseInt(params.floorSizeMin as string)
+    if (!isNaN(floorSizeMin)) {
+      query = query.gte("floor_size_sqm", floorSizeMin)
     }
   }
-  if (params.maxSize) {
-    const maxSize = parseInt(params.maxSize as string)
-    if (!isNaN(maxSize)) {
-      query = query.lte("size_sqm", maxSize)
+  if (params.floorSizeMax) {
+    const floorSizeMax = parseInt(params.floorSizeMax as string)
+    if (!isNaN(floorSizeMax)) {
+      query = query.lte("floor_size_sqm", floorSizeMax)
     }
   }
 
   // Features (these would typically be in a features JSONB column)
   // For now we'll check if they exist in the description
   const features = []
-  if (params.pool === 'true') features.push('pool')
-  if (params.garden === 'true') features.push('garden')
-  if (params.garage === 'true') features.push('garage')
+  if (params.hasPool === 'true') features.push('pool')
+  if (params.hasGarden === 'true') features.push('garden')
+  if (params.garages) features.push('garage')
   if (params.petFriendly === 'true') features.push('pet')
-  if (params.solar === 'true') features.push('solar')
-  if (params.fibre === 'true') features.push('fibre')
+  if (params.hasSolar === 'true') features.push('solar')
+  if (params.hasFibre === 'true') features.push('fibre')
   if (params.furnished === 'true') features.push('furnished')
 
   // If features are specified, filter by them
@@ -164,8 +150,19 @@ export default async function SearchPage({
     params.propertyType || 
     params.province || 
     params.city || 
-    params.minPrice ||
-    params.maxPrice
+    params.priceMin ||
+    params.priceMax ||
+    params.bedrooms ||
+    params.bathrooms ||
+    params.floorSizeMin ||
+    params.floorSizeMax ||
+    params.hasPool ||
+    params.hasGarden ||
+    params.garages ||
+    params.petFriendly ||
+    params.hasSolar ||
+    params.hasFibre ||
+    params.furnished
   )
   const isTestDrive = hasPersonaParams && !params.persona
 

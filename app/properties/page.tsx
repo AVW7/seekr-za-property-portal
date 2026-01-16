@@ -31,7 +31,7 @@ export default async function PropertiesPage({
   }
 
   const { data, error } = await query
-  const properties = (data || []) as Property[]
+  const properties = (data || []) as unknown as Property[]
 
   return (
     <div className="flex min-h-screen flex-col">

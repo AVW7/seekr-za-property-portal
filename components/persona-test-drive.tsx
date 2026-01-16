@@ -186,28 +186,30 @@ export function PersonaTestDrive({ variant = "default" }: PersonaTestDriveProps)
 
     if (province) params.province = province
     if (city) params.city = city
-    if (listingType) params.listingType = listingType
-    if (propertyType) params.propertyType = propertyType
-    if (minPrice) params.minPrice = parseInt(minPrice)
-    if (maxPrice) params.maxPrice = parseInt(maxPrice)
-    if (minBeds) params.minBeds = parseInt(minBeds)
-    if (maxBeds) params.maxBeds = parseInt(maxBeds)
-    if (minBaths) params.minBaths = parseInt(minBaths)
-    if (maxBaths) params.maxBaths = parseInt(maxBaths)
-    if (minSize) params.minSize = parseInt(minSize)
-    if (maxSize) params.maxSize = parseInt(maxSize)
-    if (pool) params.pool = true
-    if (garden) params.garden = true
-    if (garage) params.garage = true
+    if (listingType) params.listingType = listingType === "rent" ? "to_rent" : "for_sale"
+    if (propertyType) params.propertyType = propertyType === "apartment" ? "apartment_flat" : propertyType as any
+    if (minPrice) params.priceMin = parseInt(minPrice)
+    if (maxPrice) params.priceMax = parseInt(maxPrice)
+    if (minBeds) params.bedrooms = parseInt(minBeds)
+    if (maxBeds) params.bedrooms = Math.max(params.bedrooms || 0, parseInt(maxBeds))
+    if (minBaths) params.bathrooms = parseInt(minBaths)
+    if (maxBaths) params.bathrooms = Math.max(params.bathrooms || 0, parseInt(maxBaths))
+    if (minSize) params.floorSizeMin = parseInt(minSize)
+    if (maxSize) params.floorSizeMax = parseInt(maxSize)
+    if (pool) params.hasPool = true
+    if (garden) params.hasGarden = true
+    if (garage) params.garages = 1
     if (petFriendly) params.petFriendly = true
-    if (solar) params.solar = true
-    if (fibre) params.fibre = true
+    if (solar) params.hasSolar = true
+    if (fibre) params.hasFibre = true
     if (furnished) params.furnished = true
 
     // Convert to URL params
     const urlParams = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
-      urlParams.set(key, value.toString())
+      if (value !== undefined && value !== null) {
+        urlParams.set(key, value.toString())
+      }
     })
 
     // Navigate to search page with params
