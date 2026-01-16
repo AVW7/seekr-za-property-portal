@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { BackButton } from '@/components/back-button'
+import { AccountNav } from '@/components/account/account-nav'
 
 export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth()
@@ -155,38 +156,7 @@ export default function SettingsPage() {
           {/* Navigation Bar */}
           <div className="flex items-center justify-between mb-6">
             <BackButton fallbackUrl="/account" label="Back to Dashboard" />
-            <div className="flex items-center gap-2">
-              <Link href="/account">
-                <Button variant="ghost" size="sm">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <Link href="/saved">
-                <Button variant="ghost" size="sm">
-                  <Heart className="h-4 w-4 mr-2" />
-                  Saved
-                </Button>
-              </Link>
-              <Link href="/account/personas">
-                <Button variant="ghost" size="sm">
-                  <Search className="h-4 w-4 mr-2" />
-                  Personas
-                </Button>
-              </Link>
-              <Link href="/account/buyability">
-                <Button variant="ghost" size="sm">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  BuyAbility
-                </Button>
-              </Link>
-              <Link href="/account/settings">
-                <Button variant="ghost" size="sm" className="font-medium">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-            </div>
+            <AccountNav />
           </div>
 
           <Separator className="mb-8" />
@@ -194,7 +164,7 @@ export default function SettingsPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-              <Settings className="h-8 w-8 text-primary" />
+              <Settings className="h-8 w-8 text-primary" aria-hidden="true" />
               Account Settings
             </h1>
             <p className="text-muted-foreground">
@@ -205,15 +175,15 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile">
-            <User className="h-4 w-4 mr-2" />
+            <User className="h-4 w-4 mr-2" aria-hidden="true" />
             Profile
           </TabsTrigger>
           <TabsTrigger value="notifications">
-            <Bell className="h-4 w-4 mr-2" />
+            <Bell className="h-4 w-4 mr-2" aria-hidden="true" />
             Notifications
           </TabsTrigger>
           <TabsTrigger value="security">
-            <Lock className="h-4 w-4 mr-2" />
+            <Lock className="h-4 w-4 mr-2" aria-hidden="true" />
             Security
           </TabsTrigger>
         </TabsList>
@@ -230,7 +200,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="email">
-                  <Mail className="h-4 w-4 inline mr-2" />
+                  <Mail className="h-4 w-4 inline mr-2" aria-hidden="true" />
                   Email Address
                 </Label>
                 <Input
@@ -260,7 +230,7 @@ export default function SettingsPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="phone">
-                  <Phone className="h-4 w-4 inline mr-2" />
+                  <Phone className="h-4 w-4 inline mr-2" aria-hidden="true" />
                   Phone Number
                 </Label>
                 <Input
@@ -273,7 +243,7 @@ export default function SettingsPage() {
               </div>
 
               <Button onClick={handleSaveProfile} disabled={loading}>
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? 'Saving…' : 'Save Changes'}
               </Button>
             </CardContent>
           </Card>
@@ -379,7 +349,7 @@ export default function SettingsPage() {
               </div>
 
               <Button onClick={handleSaveNotifications} disabled={loading}>
-                {loading ? 'Saving...' : 'Save Preferences'}
+                {loading ? 'Saving…' : 'Save Preferences'}
               </Button>
             </CardContent>
           </Card>

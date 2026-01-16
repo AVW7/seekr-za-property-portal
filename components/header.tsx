@@ -2,24 +2,23 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import {
-  Menu,
-  Heart,
-  Bell,
-  Settings,
-  LogOut,
-  ChevronDown,
-  User as UserIcon,
-  Search,
-  Home,
-  MapPin,
-  BarChart3,
-  Calculator,
-  Briefcase,
-  LogIn,
-  UserPlus
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import Menu from "lucide-react/dist/esm/icons/menu";
+import Heart from "lucide-react/dist/esm/icons/heart";
+import Bell from "lucide-react/dist/esm/icons/bell";
+import Settings from "lucide-react/dist/esm/icons/settings";
+import LogOut from "lucide-react/dist/esm/icons/log-out";
+import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
+import User from "lucide-react/dist/esm/icons/user";
+import Search from "lucide-react/dist/esm/icons/search";
+import Home from "lucide-react/dist/esm/icons/home";
+import MapPin from "lucide-react/dist/esm/icons/map-pin";
+import BarChart3 from "lucide-react/dist/esm/icons/bar-chart-3";
+import Calculator from "lucide-react/dist/esm/icons/calculator";
+import Briefcase from "lucide-react/dist/esm/icons/briefcase";
+import LogIn from "lucide-react/dist/esm/icons/log-in";
+import UserPlus from "lucide-react/dist/esm/icons/user-plus";
+import LayoutDashboard from "lucide-react/dist/esm/icons/layout-dashboard";
 import { Button } from "@/components/ui/button";
 import { PersonaWidget } from "@/components/persona-widget";
 import {
@@ -64,15 +63,45 @@ import { useAuth } from "@/lib/auth-context";
 import { navConfig } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [isAgent, setIsAgent] = useState(false);
   const { user, signOut } = useAuth();
   const pathname = usePathname();
 
+  useEffect(() => {
+    const checkAgentStatus = async () => {
+      if (!user) {
+        setIsAgent(false);
+        return;
+      }
+      
+      const supabase = createClient();
+      const { data: agent } = await supabase
+        .from("agents")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+      
+      setIsAgent(!!agent);
+    };
+    
+    checkAgentStatus();
+  }, [user]);
+
   return (
-    <header id="seekrza-header" className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <>
+      {/* Skip Navigation Link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
+      <header id="seekrza-header" className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <div className="flex items-center gap-6">
@@ -250,10 +279,10 @@ export function Header() {
                   <Avatar className="h-8 w-8">
                     <AvatarImage
                       src={user.user_metadata?.avatar_url}
-                      alt={user.email || "User"}
+                      alt={user.user_metadata?.full_name || user.email || 'User'}
                     />
                     <AvatarFallback>
-                      {user.email?.slice(0, 2).toUpperCase()}
+                      <User className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -265,9 +294,29 @@ export function Header() {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/account">Dashboard</Link>
-                </DropdownMenuItem>
+                {isAgent ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/agent">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Agent Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account">
+                        <User className="mr-2 h-4 w-4" />
+                        Account Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link href="/account">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href="/saved">Saved homes</Link>
                 </DropdownMenuItem>
@@ -426,5 +475,6 @@ export function Header() {
         </div>
       </div>
     </header>
+    </>
   );
 }

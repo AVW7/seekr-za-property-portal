@@ -132,6 +132,29 @@
   }
 }
 
+/* Prefers reduced motion - Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Touch action optimization - Prevent double-tap zoom delay on mobile */
+a, button, [role="button"], [role="link"] {
+  touch-action: manipulation;
+}
+
+/* Focus visible enhancements for cards and interactive elements */
+.hover\:shadow-lg:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
 /* Adding consistent padding and spacing utilities for responsive layout */
 @layer utilities {
   /* Container padding adjustments for better visual balance */

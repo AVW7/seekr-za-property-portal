@@ -37,6 +37,7 @@ import { calculateAffordability } from '@/lib/affordability'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { BackButton } from '@/components/back-button'
+import { AccountNav } from '@/components/account/account-nav'
 
 export default function BuyAbilityPage() {
   const { user, loading: authLoading } = useAuth()
@@ -187,38 +188,7 @@ export default function BuyAbilityPage() {
           {/* Navigation Bar */}
           <div className="flex items-center justify-between mb-6">
             <BackButton fallbackUrl="/account" label="Back to Dashboard" />
-            <div className="flex items-center gap-2">
-              <Link href="/account">
-                <Button variant="ghost" size="sm">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <Link href="/saved">
-                <Button variant="ghost" size="sm">
-                  <Heart className="h-4 w-4 mr-2" />
-                  Saved
-                </Button>
-              </Link>
-              <Link href="/account/personas">
-                <Button variant="ghost" size="sm">
-                  <Search className="h-4 w-4 mr-2" />
-                  Personas
-                </Button>
-              </Link>
-              <Link href="/account/buyability">
-                <Button variant="ghost" size="sm" className="font-medium">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  BuyAbility
-                </Button>
-              </Link>
-              <Link href="/account/settings">
-                <Button variant="ghost" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-            </div>
+            <AccountNav />
           </div>
 
           <Separator className="mb-8" />
@@ -227,7 +197,7 @@ export default function BuyAbilityPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-                <TrendingUp className="h-8 w-8 text-primary" />
+                <TrendingUp className="h-8 w-8 text-primary" aria-hidden="true" />
                 My BuyAbility
               </h1>
               <p className="text-muted-foreground">
@@ -237,12 +207,12 @@ export default function BuyAbilityPage() {
             <div className="flex gap-2">
               <Link href="/calculator">
                 <Button variant="outline">
-                  <Calculator className="h-4 w-4 mr-2" />
+                  <Calculator className="h-4 w-4 mr-2" aria-hidden="true" />
                   Calculator
                 </Button>
               </Link>
               <Button onClick={() => setShowNewDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             New Profile
           </Button>
         </div>
@@ -258,13 +228,13 @@ export default function BuyAbilityPage() {
       ) : profiles.length === 0 ? (
         <Card className="text-center py-16">
           <CardContent className="pt-6">
-            <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
             <h3 className="text-xl font-semibold mb-2">No BuyAbility Profiles Yet</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Create affordability profiles to understand what you can afford and track changes over time as your financial situation evolves.
             </p>
             <Button size="lg" onClick={() => setShowNewDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               Create Your First Profile
             </Button>
           </CardContent>
@@ -289,8 +259,9 @@ export default function BuyAbilityPage() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setDeletingProfileId(profile.id)}
+                    aria-label="Delete profile"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                   </Button>
                 </div>
               </CardHeader>
@@ -330,20 +301,20 @@ export default function BuyAbilityPage() {
                     <h4 className="font-semibold text-sm text-muted-foreground uppercase">Your BuyAbility</h4>
                     <div className="p-4 bg-primary/10 rounded-lg space-y-2">
                       <div className="flex items-center gap-2">
-                        <Home className="h-5 w-5 text-primary" />
+                        <Home className="h-5 w-5 text-primary" aria-hidden="true" />
                         <span className="text-sm font-medium">Max Property Price</span>
                       </div>
                       <p className="text-3xl font-bold text-primary">
-                        R {profile.max_affordable_price.toLocaleString()}
+                        R&nbsp;{profile.max_affordable_price.toLocaleString()}
                       </p>
                     </div>
                     <div className="p-4 bg-muted rounded-lg space-y-2">
                       <div className="flex items-center gap-2">
-                        <DollarSign className="h-5 w-5 text-muted-foreground" />
+                        <DollarSign className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                         <span className="text-sm font-medium">Monthly Repayment</span>
                       </div>
                       <p className="text-2xl font-bold">
-                        R {profile.max_monthly_payment.toLocaleString()}
+                        R&nbsp;{profile.max_monthly_payment.toLocaleString()}
                       </p>
                     </div>
                   </div>

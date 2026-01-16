@@ -4,14 +4,25 @@ import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search-bar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, Calculator, Zap, Shield, TrendingUp, Home, Brain, Bell, Map, Eye, BarChart3, Sparkles } from "lucide-react"
+import CheckCircle2 from "lucide-react/dist/esm/icons/check-circle-2"
+import Calculator from "lucide-react/dist/esm/icons/calculator"
+import Zap from "lucide-react/dist/esm/icons/zap"
+import Shield from "lucide-react/dist/esm/icons/shield"
+import TrendingUp from "lucide-react/dist/esm/icons/trending-up"
+import Home from "lucide-react/dist/esm/icons/home"
+import Brain from "lucide-react/dist/esm/icons/brain"
+import Bell from "lucide-react/dist/esm/icons/bell"
+import Map from "lucide-react/dist/esm/icons/map"
+import Eye from "lucide-react/dist/esm/icons/eye"
+import BarChart3 from "lucide-react/dist/esm/icons/bar-chart-3"
+import Sparkles from "lucide-react/dist/esm/icons/sparkles"
 import Link from "next/link"
 
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-background py-16 sm:py-20 md:py-28 lg:py-32">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">

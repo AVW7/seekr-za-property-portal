@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { MapPin, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import MapPin from "lucide-react/dist/esm/icons/map-pin";
+import Search from "lucide-react/dist/esm/icons/search";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,11 +22,21 @@ interface SearchBarProps {
 
 export function SearchBar({ className, variant = "default" }: SearchBarProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [intent, setIntent] = useState<"buy" | "rent">("buy");
   const [beds, setBeds] = useState<string>("any");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
+
+  // Sync state from URL params on mount
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+    setIntent((searchParams.get("intent") as "buy" | "rent") || "buy");
+    setBeds(searchParams.get("beds") || "any");
+    setPriceMin(searchParams.get("priceMin") || "");
+    setPriceMax(searchParams.get("priceMax") || "");
+  }, [searchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,9 +62,11 @@ export function SearchBar({ className, variant = "default" }: SearchBarProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
+            autoComplete="off"
+            aria-label="Search location"
           />
         </div>
-        <Button type="submit" size="icon">
+        <Button type="submit" size="icon" aria-label="Search properties">
           <Search className="h-4 w-4" />
           <span className="sr-only">Search</span>
         </Button>
@@ -79,6 +92,8 @@ export function SearchBar({ className, variant = "default" }: SearchBarProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 h-12 text-base"
+            autoComplete="off"
+            aria-label="Search location"
           />
         </div>
 
@@ -122,7 +137,9 @@ export function SearchBar({ className, variant = "default" }: SearchBarProps) {
 
           {/* Price Range */}
           <div className="flex items-center gap-2">
+            <label htmlFor="price-min" className="sr-only">Minimum price</label>
             <Input
+              id="price-min"
               type="number"
               placeholder="Min price"
               value={priceMin}
@@ -130,9 +147,12 @@ export function SearchBar({ className, variant = "default" }: SearchBarProps) {
               className="w-32"
               min="0"
               step="50000"
+              aria-label="Minimum price"
             />
-            <span className="text-muted-foreground">-</span>
+            <span className="text-muted-foreground" aria-hidden="true">-</span>
+            <label htmlFor="price-max" className="sr-only">Maximum price</label>
             <Input
+              id="price-max"
               type="number"
               placeholder="Max price"
               value={priceMax}
@@ -140,6 +160,7 @@ export function SearchBar({ className, variant = "default" }: SearchBarProps) {
               className="w-32"
               min="0"
               step="50000"
+              aria-label="Maximum price"
             />
           </div>
 

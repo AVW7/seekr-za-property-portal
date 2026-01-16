@@ -37,6 +37,7 @@ import { useToast } from '@/hooks/use-toast'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { BackButton } from '@/components/back-button'
+import { AccountNav } from '@/components/account/account-nav'
 
 export default function PersonasPage() {
   const { user, loading: authLoading } = useAuth()
@@ -202,7 +203,7 @@ export default function PersonasPage() {
     if (params.bedrooms) filters.push(`🛏️ ${params.bedrooms}+ beds`)
     if (params.bathrooms) filters.push(`🚿 ${params.bathrooms}+ baths`)
     if (params.hasSolar) filters.push('☀️ Solar')
-    if (params.hasFiber) filters.push('📡 Fiber')
+    if (params.hasFibre) filters.push('📡 Fiber')
     if (params.petFriendly) filters.push('🐾 Pet Friendly')
     if (params.inEstate) filters.push('🏘️ Estate')
 
@@ -230,38 +231,7 @@ export default function PersonasPage() {
           {/* Navigation Bar */}
           <div className="flex items-center justify-between mb-6">
             <BackButton fallbackUrl="/account" label="Back to Dashboard" />
-            <div className="flex items-center gap-2">
-              <Link href="/account">
-                <Button variant="ghost" size="sm">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <Link href="/saved">
-                <Button variant="ghost" size="sm">
-                  <Heart className="h-4 w-4 mr-2" />
-                  Saved
-                </Button>
-              </Link>
-              <Link href="/account/personas">
-                <Button variant="ghost" size="sm" className="font-medium">
-                  <Search className="h-4 w-4 mr-2" />
-                  Personas
-                </Button>
-              </Link>
-              <Link href="/account/buyability">
-                <Button variant="ghost" size="sm">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  BuyAbility
-                </Button>
-              </Link>
-              <Link href="/account/settings">
-                <Button variant="ghost" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-            </div>
+            <AccountNav />
           </div>
 
           <Separator className="mb-8" />
@@ -270,7 +240,7 @@ export default function PersonasPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-                <Search className="h-8 w-8 text-primary" />
+                <Search className="h-8 w-8 text-primary" aria-hidden="true" />
                 Search Personas
               </h1>
               <p className="text-muted-foreground">
@@ -279,7 +249,7 @@ export default function PersonasPage() {
             </div>
             <Link href="/search">
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                 Create New
               </Button>
             </Link>
@@ -295,14 +265,14 @@ export default function PersonasPage() {
       ) : personas.length === 0 ? (
         <Card className="text-center py-16">
           <CardContent className="pt-6">
-            <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
             <h3 className="text-xl font-semibold mb-2">No Search Personas Yet</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Create customized search profiles with your preferred filters to quickly find properties that match your needs.
             </p>
             <Link href="/search">
               <Button size="lg">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                 Create Your First Persona
               </Button>
             </Link>
@@ -319,7 +289,7 @@ export default function PersonasPage() {
                       <CardTitle className="text-xl">{persona.name}</CardTitle>
                       {persona.alert_enabled && (
                         <Badge variant="default" className="gap-1">
-                          <Bell className="h-3 w-3" />
+                          <Bell className="h-3 w-3" aria-hidden="true" />
                           Alert ON
                         </Badge>
                       )}
@@ -337,27 +307,30 @@ export default function PersonasPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => toggleAlert(persona)}
+                      aria-label={persona.alert_enabled ? 'Disable alert' : 'Enable alert'}
                       title={persona.alert_enabled ? 'Disable alert' : 'Enable alert'}
                     >
                       {persona.alert_enabled ? (
-                        <Bell className="h-4 w-4" />
+                        <Bell className="h-4 w-4" aria-hidden="true" />
                       ) : (
-                        <BellOff className="h-4 w-4" />
+                        <BellOff className="h-4 w-4" aria-hidden="true" />
                       )}
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(persona)}
+                      aria-label="Edit persona"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4" aria-hidden="true" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => setDeletingPersonaId(persona.id)}
+                      aria-label="Delete persona"
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                     </Button>
                   </div>
                 </div>

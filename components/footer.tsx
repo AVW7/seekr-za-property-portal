@@ -2,25 +2,23 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import {
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
-  Home,
-  Search,
-  Calculator,
-  Users,
-  HelpCircle,
-  FileText,
-  Shield,
-  Heart
-} from "lucide-react"
+import Building2 from "lucide-react/dist/esm/icons/building-2"
+import Mail from "lucide-react/dist/esm/icons/mail"
+import Phone from "lucide-react/dist/esm/icons/phone"
+import MapPin from "lucide-react/dist/esm/icons/map-pin"
+import Facebook from "lucide-react/dist/esm/icons/facebook"
+import Twitter from "lucide-react/dist/esm/icons/twitter"
+import Instagram from "lucide-react/dist/esm/icons/instagram"
+import Linkedin from "lucide-react/dist/esm/icons/linkedin"
+import Youtube from "lucide-react/dist/esm/icons/youtube"
+import Home from "lucide-react/dist/esm/icons/home"
+import Search from "lucide-react/dist/esm/icons/search"
+import Calculator from "lucide-react/dist/esm/icons/calculator"
+import Users from "lucide-react/dist/esm/icons/users"
+import HelpCircle from "lucide-react/dist/esm/icons/help-circle"
+import FileText from "lucide-react/dist/esm/icons/file-text"
+import Shield from "lucide-react/dist/esm/icons/shield"
+import Heart from "lucide-react/dist/esm/icons/heart"
 
 export function Footer() {
   return (
@@ -46,12 +44,17 @@ export function Footer() {
                 Get the latest property listings and market insights
               </p>
               <div className="flex gap-2">
+                <label htmlFor="newsletter-email" className="sr-only">Email address for newsletter</label>
                 <Input
+                  id="newsletter-email"
                   type="email"
                   placeholder="Enter your email"
                   className="text-sm h-9"
+                  autoComplete="email"
+                  required
+                  aria-label="Email address for newsletter"
                 />
-                <Button size="sm" className="h-9 px-4">
+                <Button size="sm" className="h-9 px-4" type="submit" aria-label="Subscribe to newsletter">
                   <Mail className="h-4 w-4" />
                 </Button>
               </div>
